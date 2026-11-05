@@ -72,6 +72,12 @@
 */
 /* In the base layer so Tailwind utility classes can override these. */
 @layer base {
+  /* Never let the page scroll sideways on phones (edge-to-edge carousels bleed into the margins).
+     clip, not hidden: hidden would break the sticky navbar and table of contents. */
+  html,
+  body {
+    overflow-x: clip;
+  }
   body {
     margin: 0;
     padding: 0;
