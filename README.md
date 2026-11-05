@@ -62,6 +62,8 @@ Designed, written and directed by **Joel Green**: the concept, look and feel, co
 
 Much of the code was written with **[Claude Code](https://claude.com/claude-code)**, Anthropic's AI coding assistant, working as a pair programmer under Joel's direction. Commits made with its help are marked with a `Co-Authored-By: Claude` line.
 
+Claude Code's role was to help get this first build designed, built and launched. **From here on, all updates to the site go through Joel**, who owns and maintains it.
+
 ## License
 
 The code is released under the [MIT License](LICENSE). The writing, book titles, characters, artwork and other creative content on the site are © Joel Green and are not covered by that license.
