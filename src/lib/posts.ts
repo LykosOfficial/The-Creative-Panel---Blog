@@ -1,4 +1,5 @@
 import type { CollectionEntry } from 'astro:content';
+import { SITE_TIMEZONE } from '../consts';
 
 export type Post = CollectionEntry<'blog'>;
 
@@ -32,6 +33,6 @@ export function seoDescription(post: Post) {
 export const wordCount = (post: Post) => (post.body ?? '').trim().split(/\s+/).filter(Boolean).length;
 
 export function formatDate(date: Date) {
-	// UTC: publish dates are stored as midnight UTC, so local time zones would show the day before
-	return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: 'UTC' });
+	// In the site's time zone (src/consts.ts): posts have an exact publish time set in the admin
+	return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric', timeZone: SITE_TIMEZONE });
 }

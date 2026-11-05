@@ -135,8 +135,33 @@ const schema = [
 			</header>
 
 			<main class="article">
-				<!-- Article text on the left, AdSense column on the right (desktop) -->
+				<!-- Wide screens: ToC (left, sticky) · article · AdSense (right). Narrower: article + ad, ToC inline. -->
 				<div class="article-grid">
+				{
+					toc.length > 0 && (
+						<aside class="toc-rail" aria-label="Table of contents">
+							<nav class="toc-rail-inner">
+								<p class="label !mb-3 !text-[11px] font-semibold text-muted-foreground">On this page</p>
+								<ol class="!m-0 border-l border-border !p-0">
+									{toc.map((h) => (
+										<li class="list-none">
+											<a
+												href={`#${h.slug}`}
+												data-toc-link={h.slug}
+												class:list={[
+													'-ml-px block border-l-2 border-transparent py-1.5 text-[14px] leading-snug !text-muted-foreground no-underline hover:!text-primary',
+													h.depth === 3 ? 'pl-7' : 'pl-4',
+												]}
+											>
+												{h.text}
+											</a>
+										</li>
+									))}
+								</ol>
+							</nav>
+						</aside>
+					)
+				}
 				<div class="article-col">
 				<a href="/blog" class="label inline-flex items-center gap-2 !text-[12px] font-semibold">← Back</a>
 				<hr class="my-6" />
@@ -145,7 +170,7 @@ const schema = [
 
 				{
 					toc.length > 0 && (
-						<details class="toc mb-10 border border-border bg-card" open>
+						<details class="toc mb-10 border border-border bg-card xl:hidden" open>
 							<summary class="label flex cursor-pointer list-none items-center gap-2 px-5 py-4 !text-[12px] text-muted-foreground">
 								<span aria-hidden="true">☰</span> Table of contents
 							</summary>
@@ -212,6 +237,25 @@ const schema = [
 			onScroll();
 			toTop?.addEventListener('click', () => scrollTo({ top: 0, behavior: 'smooth' }));
 
+			// Left ToC: highlight the section being read (the last heading that has scrolled past the navbar)
+			const tocLinks = [...document.querySelectorAll<HTMLAnchorElement>('[data-toc-link]')];
+			if (tocLinks.length) {
+				const headings = tocLinks
+					.map((a) => document.getElementById(a.dataset.tocLink!))
+					.filter((h): h is HTMLElement => h !== null);
+				const markActive = () => {
+					const line = 57 + 40; // navbar + a little room
+					let current = headings[0]?.id;
+					for (const h of headings) if (h.getBoundingClientRect().top <= line) current = h.id;
+					for (const a of tocLinks) a.classList.toggle('active', a.dataset.tocLink === current);
+				};
+				addEventListener('scroll', markActive, { passive: true });
+				// Also right after a ToC click / #link jump (the scroll event can lag the jump)
+				addEventListener('hashchange', () => setTimeout(markActive, 50));
+				for (const a of tocLinks) a.addEventListener('click', () => setTimeout(markActive, 50));
+				markActive();
+			}
+
 			// Mid-post ad (phones/tablets): move it after the 3rd paragraph, then load it.
 			// Skipped on desktop (sidebar ad) and on short posts, so it never loads unseen.
 			const midAd = document.querySelector<HTMLElement>('[data-inarticle-ad]');
@@ -251,6 +295,34 @@ const schema = [
 					grid-template-columns: minmax(0, 768px) 300px;
 					justify-content: space-between;
 				}
+			}
+			/* Left ToC column: only on wide screens (narrower ones get the inline box) */
+			.toc-rail {
+				display: none;
+			}
+			@media (min-width: 1280px) {
+				.article-grid {
+					grid-template-columns: 220px minmax(0, 768px) 300px;
+					gap: 2.5rem;
+				}
+				.toc-rail {
+					display: block;
+				}
+				.toc-rail-inner {
+					position: sticky;
+					top: calc(var(--header-h, 57px) + 2rem);
+					max-height: calc(100vh - var(--header-h, 57px) - 4rem);
+					overflow-y: auto;
+				}
+			}
+			.toc-rail a.active {
+				border-left-color: var(--primary);
+				color: var(--foreground) !important;
+				font-weight: 500;
+			}
+			/* Headings jumped to from the ToC land below the sticky navbar, not under it */
+			.article-body :global(:is(h2, h3, h4)) {
+				scroll-margin-top: calc(var(--header-h, 57px) + 1.5rem);
 			}
 			@media (min-width: 640px) {
 				main.article {
