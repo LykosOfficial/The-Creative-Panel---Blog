@@ -1,0 +1,13 @@
+---
+// The contact line used in the legal pages: the email from src/data/legal.ts,
+// or the author site until a contact email is set.
+import { legal } from '../../data/legal';
+---
+
+{
+	legal.contactEmail ? (
+		<a href={`mailto:${legal.contactEmail}`}>{legal.contactEmail}</a>
+	) : (
+		<a href="https://joelgreenauthor.com" rel="noopener">joelgreenauthor.com</a>
+	)
+}

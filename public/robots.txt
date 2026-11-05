@@ -1,0 +1,7 @@
+# The Creative Panel (joelgreen.studio)
+User-agent: *
+Allow: /
+# Data file for the site search box, not a page
+Disallow: /search.json
+
+Sitemap: https://joelgreen.studio/sitemap-index.xml

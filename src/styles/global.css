@@ -1,0 +1,338 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+/* Geist is only used for the brand logo, to match joelgreenauthor.com */
+@import "@fontsource-variable/geist";
+/*
+  ---break---
+*/
+@custom-variant dark (&:is(.dark *));
+
+/*
+  The Creative Panel — design tokens.
+  Matched to the Ink & Insight prototype (ink-insight-hub.base44.app):
+  muted teal accent, near-black / off-white neutrals, Barlow Condensed
+  display type, Barlow headings, Inter body, small (0.25rem) radius.
+
+  Fonts are loaded by Astro's Fonts API (astro.config.mjs) which
+  defines --font-barlow-condensed, --font-barlow and --font-inter.
+*/
+
+@theme {
+  --color-brand-teal: hsl(182 60% 35%); /* #248B8F */
+  --color-brand-teal-light: hsl(182 60% 40%);
+  --color-brand-teal-dark: hsl(182 60% 28%);
+  --color-brand-ink: hsl(0 0% 6%); /* #0F0F0F header / dark bg */
+  /* Brand logo — identical to joelgreenauthor.com */
+  --color-brand-logo-accent: #10c1b2;
+  --color-brand-gold: #d6a015; /* logo title + book titles, as on joelgreenauthor.com */
+  --font-logo: "Geist Variable", sans-serif;
+}
+
+:root {
+  --black: 15, 15, 15;
+  --background: hsl(0 0% 98%);
+  --foreground: hsl(0 0% 6%);
+  --card: hsl(0 0% 100%);
+  --card-foreground: hsl(0 0% 6%);
+  --popover: hsl(0 0% 100%);
+  --popover-foreground: hsl(0 0% 6%);
+  --primary: hsl(182 60% 35%);
+  --primary-foreground: hsl(0 0% 100%);
+  --secondary: hsl(0 0% 94%);
+  --secondary-foreground: hsl(0 0% 20%);
+  --muted: hsl(0 0% 93%);
+  --muted-foreground: hsl(0 0% 44%);
+  --accent: hsl(182 60% 35%);
+  --accent-foreground: hsl(0 0% 100%);
+  --accent-dark: hsl(182 60% 28%);
+  --destructive: hsl(0 84.2% 60.2%);
+  --border: hsl(0 0% 88%);
+  --input: hsl(0 0% 88%);
+  --ring: hsl(182 60% 35%);
+  --chart-1: hsl(182 60% 35%);
+  --chart-2: hsl(173 58% 39%);
+  --chart-3: hsl(197 37% 24%);
+  --chart-4: hsl(43 74% 66%);
+  --chart-5: hsl(27 87% 67%);
+  --radius: 0.25rem;
+  --sidebar: hsl(0 0% 6%);
+  --sidebar-foreground: hsl(0 0% 90%);
+  --sidebar-primary: hsl(182 60% 40%);
+  --sidebar-primary-foreground: hsl(0 0% 100%);
+  --sidebar-accent: hsl(0 0% 12%);
+  --sidebar-accent-foreground: hsl(0 0% 90%);
+  --sidebar-border: hsl(0 0% 14%);
+  --sidebar-ring: hsl(182 60% 40%);
+}
+
+/*
+  Base typography (originally from Bear Blog via Astro's blog template),
+  restyled to the prototype's type system.
+*/
+/* In the base layer so Tailwind utility classes can override these. */
+@layer base {
+  body {
+    margin: 0;
+    padding: 0;
+    text-align: left;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    font-size: 16px; /* prototype base size */
+    line-height: 1.6;
+  }
+
+  main {
+    width: 720px;
+    max-width: calc(100% - 2em);
+    margin: auto;
+    padding: 3em 1em;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    margin: 0 0 0.5rem 0;
+    color: var(--foreground);
+    line-height: 1.15;
+    font-family: var(--font-heading);
+    font-weight: 600;
+  }
+  h1, h2 {
+    font-family: var(--font-display);
+    font-weight: 500;
+    letter-spacing: -0.01em;
+  }
+  h1 { font-size: 3.052em; }
+  h2 { font-size: 2.441em; }
+  h3 { font-size: 1.953em; }
+  h4 { font-size: 1.563em; }
+  h5 { font-size: 1.25em; }
+
+  strong, b { font-weight: 700; }
+
+  a { color: var(--accent); }
+  a:hover { color: var(--accent-dark); }
+
+  p { margin-bottom: 1em; }
+  .prose p { margin-bottom: 2em; }
+
+  textarea, input { font-size: 16px; }
+  table { width: 100%; }
+
+  img {
+    max-width: 100%;
+    height: auto;
+    border-radius: var(--radius);
+  }
+
+  code {
+    padding: 2px 5px;
+    background-color: var(--muted);
+    border-radius: 2px;
+  }
+  pre {
+    padding: 1.5em;
+    border-radius: var(--radius);
+  }
+  pre > code { all: unset; }
+
+  blockquote {
+    border-left: 3px solid var(--accent);
+    padding: 0 0 0 20px;
+    margin: 0;
+    font-size: 1.25em;
+    font-style: italic;
+  }
+
+  hr {
+    border: none;
+    border-top: 1px solid var(--border);
+  }
+
+  @media (max-width: 720px) {
+    body { font-size: 16px; }
+    main { padding: 1em; }
+  }
+}
+
+/*
+  Magazine "label" style used all over the prototype: small, uppercase,
+  widely tracked Barlow Condensed (section titles, dates, tags, read time).
+  Usage: <span class="label">Featured</span>
+*/
+@utility label {
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 0.75rem;
+  line-height: 1.2;
+}
+
+/*
+  Inner-page containers (prototype measurements at 1278px):
+  .page-narrow  centered 848px column  (Archive, About)
+  .page-wide    full width, 24px sides (Trending header, Books, Sites)
+*/
+@utility page-narrow {
+  width: 100%;
+  max-width: calc(53rem + 3rem);
+  margin-inline: auto;
+  padding-inline: 1.5rem;
+}
+@utility page-wide {
+  width: 100%;
+  max-width: 90rem;
+  margin-inline: auto;
+  padding-inline: 1rem;
+  @media (min-width: 640px) {
+    padding-inline: 1.5rem;
+  }
+}
+
+/*
+  Article body (BlogPost.astro). Magazine touches: drop cap on the first
+  paragraph, condensed section headings, pull-quote blockquotes.
+*/
+@layer components {
+  .article-body {
+    font-size: 17px;
+    line-height: 1.8;
+    color: hsl(0 0% 18%);
+  }
+  .dark .article-body { color: hsl(0 0% 82%); }
+  .article-body > p:first-of-type::first-letter {
+    float: left;
+    font-family: var(--font-display);
+    font-weight: 600;
+    font-size: 4.6em;
+    line-height: 0.82;
+    padding: 0.06em 0.12em 0 0;
+    color: var(--primary);
+  }
+  .article-body h2 { font-size: 1.6em; margin-top: 2.2rem; text-transform: uppercase; }
+  .article-body h3 { font-size: 1.3em; margin-top: 1.8rem; }
+  .article-body h4 { font-size: 1.15em; margin-top: 1.5rem; }
+  .article-body blockquote {
+    font-family: var(--font-heading);
+    font-style: normal;
+    font-size: 1.35em;
+    line-height: 1.45;
+    margin: 2rem 0;
+  }
+  .article-body ul, .article-body ol { padding-left: 1.4em; margin-bottom: 1.5em; }
+  .article-body li { margin-bottom: 0.4em; }
+  .article-body img { margin: 1.5rem 0; }
+}
+
+/*
+  ---break---
+*/
+
+@theme inline {
+  --font-sans: var(--font-inter), "Inter", sans-serif;
+  --font-heading: var(--font-barlow), "Barlow", sans-serif;
+  --font-display: var(--font-barlow-condensed), "Barlow Condensed", sans-serif;
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --color-foreground: var(--foreground);
+  --color-background: var(--background);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+/*
+  ---break---
+*/
+
+.dark {
+  --black: 242, 242, 242;
+  --background: hsl(0 0% 6%);
+  --foreground: hsl(0 0% 95%);
+  --card: hsl(0 0% 10%);
+  --card-foreground: hsl(0 0% 95%);
+  --popover: hsl(0 0% 10%);
+  --popover-foreground: hsl(0 0% 95%);
+  --primary: hsl(182 60% 40%);
+  --primary-foreground: hsl(0 0% 100%);
+  --secondary: hsl(0 0% 14%);
+  --secondary-foreground: hsl(0 0% 80%);
+  --muted: hsl(0 0% 14%);
+  --muted-foreground: hsl(0 0% 55%);
+  --accent: hsl(182 60% 40%);
+  --accent-foreground: hsl(0 0% 100%);
+  --accent-dark: hsl(182 60% 50%);
+  --destructive: hsl(0 72% 51%);
+  --border: hsl(0 0% 18%);
+  --input: hsl(0 0% 18%);
+  --ring: hsl(182 60% 40%);
+}
+
+/*
+  ---break---
+*/
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+  }
+}
+
+/* Legal pages (src/layouts/LegalPage.astro) */
+@layer components {
+  .legal-body { font-size: 16px; line-height: 1.75; color: hsl(0 0% 20%); }
+  .dark .legal-body { color: hsl(0 0% 80%); }
+  .legal-body h2 {
+    font-family: var(--font-display);
+    font-size: 24px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.01em;
+    color: var(--foreground); margin: 2.6rem 0 0.9rem; padding-top: 1.4rem; border-top: 1px solid var(--border);
+  }
+  .legal-body h2:first-of-type { margin-top: 0; padding-top: 0; border-top: 0; }
+  .legal-body h3 { font-family: var(--font-heading); font-size: 18px; font-weight: 600; color: var(--foreground); margin: 1.6rem 0 0.6rem; }
+  .legal-body p { margin: 0 0 1.1em; }
+  .legal-body ul { list-style: disc; padding-left: 1.3em; margin: 0 0 1.2em; }
+  .legal-body li { margin-bottom: 0.45em; }
+  .legal-body li::marker { color: var(--primary); }
+  .legal-body strong { color: var(--foreground); font-weight: 600; }
+  .legal-body a { color: var(--primary); text-decoration: underline; text-underline-offset: 3px; }
+  .legal-body code { font-size: 0.88em; background: var(--muted); padding: 0.1em 0.35em; }
+  .legal-body table { width: 100%; border-collapse: collapse; margin: 0.4rem 0 1.6rem; font-size: 14.5px; }
+  .legal-body th { text-align: left; font-family: var(--font-display); font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted-foreground); }
+  .legal-body th, .legal-body td { border-bottom: 1px solid var(--border); padding: 0.65rem 1rem 0.65rem 0; vertical-align: top; }
+}

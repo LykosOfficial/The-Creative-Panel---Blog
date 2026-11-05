@@ -1,0 +1,32 @@
+---
+// "APR 17, 2026  ⏱ 1 MIN  ♥ 48" line used on homepage cards and lists.
+// The heart shows the like count (built in, then refreshed live from the API)
+// and is hidden while it's 0, like the prototype.
+import { formatDate, readingTime, type Post } from '../../lib/posts';
+import { getStats } from '../../lib/stats';
+
+interface Props {
+	post: Post;
+	class?: string;
+}
+const { post, class: className } = Astro.props;
+const { likes: likeCount } = await getStats(post.id);
+---
+
+<p class:list={['post-meta !m-0 flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px] uppercase tracking-[0.05em]', className]}>
+	<time datetime={post.data.pubDate.toISOString()}>{formatDate(post.data.pubDate)}</time>
+	<span class="inline-flex items-center gap-1.5">
+		<svg viewBox="0 0 24 24" class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"
+			><circle cx="12" cy="12" r="9"></circle><path d="M12 7v5l3 2"></path></svg
+		>
+		{readingTime(post)} min
+	</span>
+	<!-- Hidden while 0, like the prototype; refreshed live by liveStats.ts -->
+	<span class="inline-flex items-center gap-1.5" data-live-wrap={`${post.id}:likes`} data-hide-zero hidden={likeCount === 0}>
+		<svg viewBox="0 0 24 24" class="h-3.5 w-3.5 text-red-400" fill="currentColor" aria-hidden="true">
+			<path d="M12 20.5s-7.5-4.6-9.3-9.2C1.4 8 3.6 4.5 7.1 4.5c2 0 3.6 1.1 4.9 2.8 1.3-1.7 2.9-2.8 4.9-2.8 3.5 0 5.7 3.5 4.4 6.8-1.8 4.6-9.3 9.2-9.3 9.2z" />
+		</svg>
+		<span data-live="likes" data-slug={post.id}>{likeCount.toLocaleString()}</span>
+	</span>
+</p>
+

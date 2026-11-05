@@ -1,0 +1,24 @@
+---
+// Light page header used on Archive, Trending, Books, Sites and About (prototype):
+// small teal label, 48px condensed title, hairline underneath.
+//   width="narrow" → centered 848px column (Archive, About)
+//   width="wide"   → full width with 24px side margins (Trending, Books, Sites)
+// Anything in the default slot (e.g. tabs) goes under the title.
+interface Props {
+	label: string;
+	title: string;
+	width?: 'narrow' | 'wide';
+}
+const { label, title, width = 'wide' } = Astro.props;
+const hasSlot = Astro.slots.has('default');
+---
+
+<section class="border-b border-border">
+	<div class:list={['mx-auto w-full pt-10 md:pt-12', width === 'narrow' ? 'page-narrow' : 'page-wide', hasSlot ? 'pb-0' : 'pb-10']}>
+		<p class="label !mb-3 !text-[12px] font-semibold text-primary">{label}</p>
+		<h1 class:list={['font-display !text-[40px] font-semibold uppercase !leading-none tracking-[-0.5px] md:!text-[48px]', hasSlot ? '!mb-6' : '!m-0']}>
+			{title}
+		</h1>
+		<slot />
+	</div>
+</section>

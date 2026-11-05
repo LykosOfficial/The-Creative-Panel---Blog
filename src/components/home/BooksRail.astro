@@ -1,0 +1,89 @@
+---
+// Left sidebar: vertical book carousel. Shows 3 at a time; ▲/▼ scroll through the rest.
+import type { CollectionEntry } from 'astro:content';
+import SectionTitle from './SectionTitle.astro';
+
+interface Props {
+	books: CollectionEntry<'books'>[];
+}
+const { books } = Astro.props;
+---
+
+<div class="books-rail">
+	<SectionTitle>Books</SectionTitle>
+
+	<button type="button" class="rail-btn" data-dir="-1" aria-label="Previous books">
+		<svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 15 6-6 6 6"></path></svg>
+	</button>
+
+	<ul class="rail-list !m-0 flex flex-col gap-2 !p-0" role="list">
+		{
+			books.map(({ data: b }) => (
+				<li class="list-none snap-start">
+					<a href={b.link ?? '/books'} class="group relative flex h-[73px] flex-col justify-center overflow-hidden bg-gradient-to-br from-[#123d3f] via-[#0b1f20] to-black px-3.5 !text-white no-underline">
+						{b.coverImage && (
+							<img src={b.coverImage} alt="" class="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+						)}
+						<span class="absolute inset-0 bg-black/35 transition group-hover:bg-black/20" aria-hidden="true" />
+						<span class="relative font-display text-[11px] font-semibold uppercase leading-tight">{b.title}</span>
+						<span class="relative text-[10px] tracking-[0.04em] text-white/60">{b.year ?? b.status}</span>
+					</a>
+				</li>
+			))
+		}
+	</ul>
+
+	<button type="button" class="rail-btn" data-dir="1" aria-label="More books">
+		<svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg>
+	</button>
+
+	<a href="/books" class="label mt-4 inline-block !text-[10px] font-semibold !text-muted-foreground hover:!text-primary">All books →</a>
+</div>
+
+<script>
+	document.querySelectorAll<HTMLElement>('.books-rail').forEach((rail) => {
+		const list = rail.querySelector<HTMLElement>('.rail-list')!;
+		const [up, down] = rail.querySelectorAll<HTMLButtonElement>('.rail-btn');
+		const step = () => (list.firstElementChild as HTMLElement | null)?.offsetHeight ?? 73;
+		const update = () => {
+			up.disabled = list.scrollTop <= 1;
+			down.disabled = list.scrollTop + list.clientHeight >= list.scrollHeight - 1;
+		};
+		rail.querySelectorAll<HTMLButtonElement>('.rail-btn').forEach((btn) =>
+			btn.addEventListener('click', () => list.scrollBy({ top: Number(btn.dataset.dir) * (step() + 8), behavior: 'smooth' })),
+		);
+		list.addEventListener('scroll', update, { passive: true });
+		update();
+	});
+</script>
+
+<style>
+	/* 3 cards (73px) + 2 gaps (8px) visible; the rest scroll */
+	.rail-list {
+		max-height: calc(73px * 3 + 8px * 2);
+		overflow-y: auto;
+		scroll-snap-type: y mandatory;
+		scrollbar-width: none;
+	}
+	.rail-list::-webkit-scrollbar {
+		display: none;
+	}
+	.rail-btn {
+		display: flex;
+		width: 100%;
+		justify-content: center;
+		padding: 0.6rem 0;
+		color: var(--muted-foreground);
+		opacity: 0.6;
+		cursor: pointer;
+		transition: opacity 0.15s, color 0.15s;
+	}
+	.rail-btn:hover:not(:disabled) {
+		opacity: 1;
+		color: var(--primary);
+	}
+	.rail-btn:disabled {
+		opacity: 0.2;
+		cursor: default;
+	}
+</style>

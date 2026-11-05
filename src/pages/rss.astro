@@ -1,0 +1,79 @@
+---
+// /rss/ — the human page about the RSS feed (what it is, the address, recent posts).
+// The feed itself stays plain XML at /rss.xml for feed readers. This used to be an XSLT
+// stylesheet on rss.xml, but browsers are removing XSLT support, so it's a normal page now.
+import { getCollection } from 'astro:content';
+import BaseHead from '../components/BaseHead.astro';
+import Footer from '../components/Footer.astro';
+import Header from '../components/Header.astro';
+import LightPageHeader from '../components/LightPageHeader.astro';
+import PostRow from '../components/home/PostRow.astro';
+import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
+import { sortByDate } from '../lib/posts';
+import { abs, breadcrumbs } from '../lib/seo';
+
+const posts = sortByDate(await getCollection('blog')).slice(0, 10);
+const feedUrl = new URL('rss.xml', Astro.site).href; // https://joelgreen.studio/rss.xml
+const schema = [breadcrumbs([{ name: 'RSS feed', path: '/rss/' }]), { '@type': 'WebPage', name: 'RSS feed', url: abs('/rss/') }];
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<BaseHead
+			title={`RSS Feed — ${SITE_TITLE}`}
+			description={`Follow ${SITE_TITLE}, ${SITE_DESCRIPTION.toLowerCase()}, in any RSS reader: new essays and chapters arrive automatically, no algorithms.`}
+			schema={schema}
+		/>
+	</head>
+	<body>
+		<Header />
+		<LightPageHeader label="RSS feed" title="Subscribe" width="narrow" />
+
+		<main class="page-narrow pb-20 pt-10">
+			<div class="mb-12 border-l-4 border-primary bg-card px-6 py-5 ring-1 ring-border">
+				<p class="!mb-4 text-[16px] leading-relaxed">
+					<strong>This is a web feed.</strong> Copy the address below into your RSS reader (Feedly, NetNewsWire, Inoreader…) and new posts
+					arrive automatically. No algorithms, no noise.
+				</p>
+				<div class="flex flex-wrap items-stretch gap-2">
+					<code class="min-w-0 flex-1 break-all bg-muted px-4 py-3 text-[14px]" data-feed-url>{feedUrl}</code>
+					<button type="button" class="label shrink-0 bg-primary px-5 !text-[12px] !font-semibold text-primary-foreground hover:opacity-90" data-copy-feed>
+						Copy
+					</button>
+				</div>
+				<p class="!mb-0 mt-3 text-[13px] text-muted-foreground">
+					Prefer email? Use the newsletter sign-up at the bottom of the page.
+				</p>
+			</div>
+
+			<h2 class="label !mb-5 !text-[14px] !font-medium tracking-[0.1em]">Recent posts</h2>
+			{
+				posts.length > 0 ? (
+					<ul class="!m-0 !p-0" role="list">
+						{posts.map((post) => <PostRow post={post} />)}
+					</ul>
+				) : (
+					<p class="text-[15px] text-muted-foreground">No posts yet. The first essays and chapters are on their way.</p>
+				)
+			}
+		</main>
+
+		<Footer />
+
+		<script>
+			// Copy the feed address to the clipboard
+			const button = document.querySelector<HTMLButtonElement>('[data-copy-feed]');
+			button?.addEventListener('click', async () => {
+				const url = document.querySelector('[data-feed-url]')?.textContent ?? '';
+				try {
+					await navigator.clipboard.writeText(url);
+					button.textContent = 'Copied';
+					setTimeout(() => (button.textContent = 'Copy'), 2000);
+				} catch {
+					/* clipboard blocked: the address is still selectable */
+				}
+			});
+		</script>
+	</body>
+</html>

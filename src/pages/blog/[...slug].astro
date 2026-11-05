@@ -1,0 +1,35 @@
+---
+// One page per post. getStaticPaths() runs at build time and tells Astro
+// which URLs to generate: /blog/first-post/, /blog/second-post/, ...
+import { getCollection, render } from 'astro:content';
+import BlogPost from '../../layouts/BlogPost.astro';
+import { sortByDate, type Post } from '../../lib/posts';
+
+export async function getStaticPaths() {
+	const posts = sortByDate(await getCollection('blog'));
+	return posts.map((post) => {
+		// "You might also like": posts sharing the most tags, then newest.
+		const related = posts
+			.filter((p) => p.id !== post.id)
+			.map((p) => ({ p, score: p.data.tags.filter((t) => post.data.tags.includes(t)).length }))
+			.sort((a, b) => b.score - a.score)
+			.slice(0, 5)
+			.map(({ p }) => p);
+		return { params: { slug: post.id }, props: { post, related } };
+	});
+}
+
+interface Props {
+	post: Post;
+	related: Post[];
+}
+
+const { post, related } = Astro.props;
+// render() turns the Markdown into a <Content /> component, and also returns
+// the list of headings, which we use for the table of contents.
+const { Content, headings } = await render(post);
+---
+
+<BlogPost post={post} related={related} headings={headings}>
+	<Content />
+</BlogPost>

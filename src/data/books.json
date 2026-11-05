@@ -1,0 +1,17 @@
+[
+	{
+		"id": "the-halo",
+		"title": "The Halo",
+		"tagline": "The truth costs everything.",
+		"blurb": "A near future sci-fi thriller about corporate power, survival, and a truth that costs everything.",
+		"genre": "Sci-Fi Thriller",
+		"series": "Astroseed Trilogy",
+		"seriesOrder": 1,
+		"link": "https://joelgreenauthor.com",
+		"featured": true,
+		"sortOrder": 1,
+		"status": "Drafting",
+		"wordCount": 3377,
+		"targetWordCount": 80000
+	}
+]

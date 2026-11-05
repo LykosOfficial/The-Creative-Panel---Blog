@@ -1,0 +1,58 @@
+---
+layout: ../layouts/LegalPage.astro
+title: Terms of Use
+description: The rules for using The Creative Panel, its writing and its comments.
+---
+import Contact from '../components/legal/Contact.astro';
+import { legal } from '../data/legal';
+
+By using {legal.siteName} ({legal.site}) you agree to these terms. If you don't agree, please don't use the site.
+
+## The writing is mine
+
+All posts, stories, excerpts, artwork and other original content on this site are © {legal.owner} unless stated otherwise, and are protected by copyright. You're welcome to:
+
+- read, share links to, and quote short passages from posts, with credit and a link back;
+- print or save a copy for your own personal use.
+
+Please don't republish whole posts or stories, sell or adapt them, or use them to train AI models, without written permission. Names of books, series and characters are part of my creative work and may not be used commercially.
+
+## Comments
+
+Comments are welcome. By posting one, you:
+
+- confirm it's your own words and doesn't break anyone else's rights;
+- agree not to post spam, advertising, harassment, hate speech, threats, personal information about others, or anything illegal;
+- give me permission to display it on the site alongside the post. You still own what you wrote.
+
+I may edit, hide or remove any comment, and block repeat offenders, at my discretion. Comments are the views of the people who write them, not mine.
+
+## Newsletter
+
+You can unsubscribe at any time using the link in any email. See the [Privacy Policy](/privacy) for how your email address is handled.
+
+## Links and purchases elsewhere
+
+The site links to other websites, including stores where my books are sold. I'm not responsible for their content or practices, and any purchase you make there is under that seller's terms. Purchases from joelgreen.store, when it opens, will have their own terms of sale.
+
+## No warranties
+
+The site is provided "as is". I do my best to keep it accurate and online, but I can't promise it will always be available, error-free or up to date.
+
+## Limitation of liability
+
+To the fullest extent the law allows, {legal.owner} isn't liable for any indirect or consequential loss arising from your use of the site. Nothing in these terms limits liability that can't be limited by law.
+
+## Governing law
+
+{legal.governingLaw
+	? `These terms are governed by the laws of ${legal.governingLaw}. If you live in a country with consumer protection laws that give you more rights, those still apply.`
+	: 'These terms are governed by the laws of the place where the site owner lives. If you live in a country with consumer protection laws that give you more rights, those still apply.'}
+
+## Changes
+
+I may update these terms from time to time. The date at the top shows when they last changed. Continuing to use the site after a change means you accept the new terms.
+
+## Contact
+
+Questions about these terms: <Contact />.

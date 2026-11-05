@@ -1,0 +1,112 @@
+---
+// Books ("Published works"): grouped by series, each book a card with cover, genre, title, year.
+import { getCollection, type CollectionEntry } from 'astro:content';
+import BaseHead from '../components/BaseHead.astro';
+import Footer from '../components/Footer.astro';
+import Header from '../components/Header.astro';
+import LightPageHeader from '../components/LightPageHeader.astro';
+import SectionTitle from '../components/home/SectionTitle.astro';
+import { SITE_TITLE } from '../consts';
+import { abs, breadcrumbs, person } from '../lib/seo';
+
+const books = (await getCollection('books')).sort(
+	(a, b) => (a.data.seriesOrder ?? 0) - (b.data.seriesOrder ?? 0) || a.data.sortOrder - b.data.sortOrder,
+);
+
+// { "Astroseed Trilogy": [book, …], "Standalone": [...] } — in first-seen order
+const groups = new Map<string, CollectionEntry<'books'>[]>();
+for (const book of books) {
+	const key = book.data.series ?? 'Standalone';
+	groups.set(key, [...(groups.get(key) ?? []), book]);
+}
+
+// SEO: each book as schema.org Book (series, genre, status, cover), linked to the author
+const bookSchema = books.map((b) => ({
+	'@type': 'Book',
+	name: b.data.title,
+	author: { '@id': person['@id'] },
+	...(b.data.blurb ? { description: b.data.blurb } : {}),
+	...(b.data.genre ? { genre: b.data.genre } : {}),
+	...(b.data.coverImage ? { image: abs(b.data.coverImage) } : {}),
+	...(b.data.link ? { url: b.data.link } : {}),
+	...(b.data.year ? { datePublished: String(b.data.year) } : {}),
+	...(b.data.status ? { creativeWorkStatus: b.data.status } : {}),
+	...(b.data.series ? { isPartOf: { '@type': 'BookSeries', name: b.data.series }, position: b.data.seriesOrder } : {}),
+	inLanguage: 'en',
+}));
+const schema = [{ '@type': 'CollectionPage', name: 'Books', url: abs('/books/'), mainEntity: bookSchema }, breadcrumbs([{ name: 'Books', path: '/books/' }])];
+const lead = books[0];
+const series = lead?.data.series ? `, book ${lead.data.seriesOrder ?? 1} of the ${lead.data.series}` : '';
+const blurb = lead?.data.blurb ? `. ${lead.data.blurb}` : '.';
+const fullDescription = lead ? `Novels by Joel Green, including ${lead.data.title}${series}${blurb}` : 'Novels by Joel Green.';
+// Search snippets get cut around 160 characters
+const booksDescription = fullDescription.length > 160 ? fullDescription.slice(0, 157).replace(/\s+\S*$/, '') + '…' : fullDescription;
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<BaseHead title={`Books by Joel Green — ${SITE_TITLE}`} description={booksDescription} schema={schema} />
+	</head>
+	<body>
+		<Header />
+		<LightPageHeader label="Published works" title="Books" width="wide" />
+
+		<main class="books page-wide">
+			{
+				[...groups].map(([series, list]) => (
+					<section class="mb-14 last:mb-0">
+						<SectionTitle>{series}</SectionTitle>
+						<!-- 1px ring on each card = thin dividers, without filling empty grid cells -->
+						<div class="grid gap-px sm:grid-cols-2 lg:grid-cols-3">
+							{list.map(({ data: b }) => (
+								<a href={b.link ?? '#'} class="group block bg-card p-6 !text-foreground no-underline ring-1 ring-border transition-colors hover:bg-muted sm:p-7">
+									<div class="mb-6 aspect-[3/4] overflow-hidden bg-brand-ink">
+										{b.coverImage ? (
+											<img src={b.coverImage} alt={`${b.title} cover art`} class="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
+										) : (
+											<div class="flex h-full flex-col justify-between bg-gradient-to-b from-[#123d3f] via-[#0b1f20] to-black p-6">
+												<span class="label text-[10px] text-white/50">{b.series ?? 'Joel Green'}</span>
+												<span class="font-logo text-[40px] font-bold uppercase leading-[0.95] tracking-tight text-brand-gold">{b.title}</span>
+												<span class="label text-[10px] text-white/60">Joel Green</span>
+											</div>
+										)}
+									</div>
+									{b.genre && <p class="!mb-2 font-display text-[13px] font-bold uppercase tracking-[0.1em] text-primary">{b.genre}</p>}
+									<h2 class="!mb-2 font-heading !text-[19px] font-medium !leading-snug transition-colors group-hover:text-primary">{b.title}</h2>
+									<p class="!m-0 text-[14px] uppercase tracking-[0.08em] text-muted-foreground">
+										{b.year ?? b.status}
+										{b.seriesOrder && b.series && <> · Book {b.seriesOrder}</>}
+									</p>
+								</a>
+							))}
+						</div>
+					</section>
+				))
+			}
+		</main>
+
+		<Footer />
+		<style>
+			.page-inner {
+				max-width: 77rem;
+				padding-inline: 1rem;
+			}
+			@media (min-width: 640px) {
+				.page-inner {
+					padding-inline: 1.5rem;
+				}
+			}
+			@media (min-width: 1024px) {
+				.page-inner {
+					padding-inline: 2.25rem;
+				}
+			}
+			main.books {
+				width: 100%;
+				padding-top: 3rem;
+				padding-bottom: 4rem;
+			}
+		</style>
+	</body>
+</html>

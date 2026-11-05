@@ -1,0 +1,98 @@
+---
+// "My Sites": other places on the web. Add entries in src/data/sites.json.
+// Cards without an image show a text logo (logoText), styled like joelgreenauthor.com's:
+// white Geist bold, teal period, on black.
+import { getCollection } from 'astro:content';
+import BaseHead from '../components/BaseHead.astro';
+import Footer from '../components/Footer.astro';
+import Header from '../components/Header.astro';
+import LightPageHeader from '../components/LightPageHeader.astro';
+import { SITE_TITLE } from '../consts';
+import { abs, breadcrumbs } from '../lib/seo';
+
+const sites = (await getCollection('sites')).sort((a, b) => a.data.sortOrder - b.data.sortOrder);
+const schema = [
+	{
+		'@type': 'CollectionPage',
+		name: 'Sites',
+		url: abs('/sites/'),
+		isPartOf: { '@id': abs('/#website') },
+		mainEntity: {
+			'@type': 'ItemList',
+			itemListElement: sites.map((s, i) => ({ '@type': 'ListItem', position: i + 1, url: s.data.url, name: s.data.title })),
+		},
+	},
+	breadcrumbs([{ name: 'Sites', path: '/sites/' }]),
+];
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<BaseHead
+			title={`Sites — Joel Green Around the Web`}
+			description="Where to find Joel Green online: his author site joelgreenauthor.com, projects, collaborations and other corners of the web."
+			schema={schema}
+		/>
+	</head>
+	<body>
+		<Header />
+		<LightPageHeader label="Around the web" title="My Sites" width="wide" />
+
+		<main class="sites page-wide">
+			<div class="grid gap-px sm:grid-cols-2 lg:grid-cols-3">
+				{
+					sites.map(({ data: s }) => (
+						<a href={s.url} target="_blank" rel="noopener" class="group flex flex-col bg-card !text-foreground no-underline ring-1 ring-border">
+							<div class="relative aspect-[16/9] overflow-hidden bg-brand-ink">
+								{s.image ? (
+									<img src={s.image} alt="" class="h-full w-full object-cover grayscale transition duration-500 group-hover:scale-105 group-hover:grayscale-0" />
+								) : (
+									<div class="flex h-full items-center justify-center bg-black">
+										<span class="font-logo text-[34px] font-bold uppercase tracking-tight text-white transition-transform duration-500 group-hover:scale-105">
+											{s.logoText ?? s.title}
+											<span class="text-brand-logo-accent">.</span>
+										</span>
+									</div>
+								)}
+							</div>
+							<div class="flex-1 p-6">
+								<div class="mb-2 flex items-center justify-between gap-4">
+									<span class="font-display text-[13px] font-bold uppercase tracking-[0.1em] text-primary">{s.type}</span>
+									<svg class="h-4 w-4 shrink-0 text-muted-foreground transition group-hover:text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+										<path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5" />
+									</svg>
+								</div>
+								<h2 class="!mb-2 font-heading !text-[19px] font-medium !leading-snug transition-colors group-hover:text-primary">{s.title}</h2>
+								{s.description && <p class="!m-0 text-[15px] leading-relaxed text-muted-foreground">{s.description}</p>}
+							</div>
+						</a>
+					))
+				}
+			</div>
+		</main>
+
+		<Footer />
+		<style>
+			.page-inner {
+				max-width: 77rem;
+				padding-inline: 1rem;
+			}
+			@media (min-width: 640px) {
+				.page-inner {
+					padding-inline: 1.5rem;
+				}
+			}
+			@media (min-width: 1024px) {
+				.page-inner {
+					padding-inline: 2.25rem;
+				}
+			}
+			main.sites {
+				width: 100%;
+				padding-top: 3rem;
+				padding-bottom: 4rem;
+			}
+		</style>
+	</body>
+</html>

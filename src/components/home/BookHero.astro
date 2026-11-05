@@ -1,0 +1,103 @@
+---
+import type { CollectionEntry } from 'astro:content';
+
+// Full-width hero for the featured book (the one with `featured: true`).
+// Layout follows the prototype: cover | genre, series, title, blurb, meta, Learn more.
+// Same container as the homepage grid, so the cover lines up with the Books column.
+interface Props {
+	book: CollectionEntry<'books'>;
+}
+const { book } = Astro.props;
+const b = book.data;
+const pct = b.targetWordCount ? Math.min(100, (b.wordCount / b.targetWordCount) * 100) : null;
+---
+
+<section class="relative overflow-hidden bg-brand-ink text-white">
+	<!-- Background: the cover art, dimmed (or a soft teal glow when there's no cover yet) -->
+	{
+		b.coverImage ? (
+			<img src={b.coverImage} alt="" class="absolute inset-0 h-full w-full scale-110 object-cover opacity-30 blur-sm" aria-hidden="true" />
+		) : (
+			<div
+				class="pointer-events-none absolute inset-0"
+				style="background: radial-gradient(55% 90% at 78% 30%, hsl(182 60% 20% / .55), transparent 70%), radial-gradient(35% 70% at 8% 100%, hsl(43 74% 40% / .12), transparent 70%);"
+				aria-hidden="true"
+			/>
+		)
+	}
+	<div class="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-black/10" aria-hidden="true"></div>
+
+	<div class="hero-inner relative mx-auto grid w-full items-center gap-8 py-12 md:grid-cols-[170px_minmax(0,1fr)] md:gap-10 md:py-[72px]">
+		<!-- Cover -->
+		{
+			b.coverImage ? (
+				<img src={b.coverImage} alt={`${b.title} cover`} class="aspect-[2/3] w-36 object-cover shadow-2xl md:w-full" />
+			) : (
+				<div class="flex aspect-[2/3] w-36 flex-col justify-between border border-white/10 bg-gradient-to-b from-[#123d3f] via-[#0b1f20] to-black p-4 shadow-2xl md:w-full">
+					<span class="label text-[9px] text-white/50">{b.series}</span>
+					<span class="font-logo text-[26px] font-bold uppercase leading-[0.95] tracking-tight text-brand-gold">{b.title}</span>
+					<span class="label text-[9px] text-white/60">Joel Green</span>
+				</div>
+			)
+		}
+
+		<div class="max-w-2xl">
+			{b.genre && <p class="label !mb-2 !text-[12px] text-brand-teal-light">{b.genre}</p>}
+			{
+				b.series && (
+					<p class="label !mb-3 !text-[11px] text-white/50">
+						{b.series}
+						{b.seriesOrder && <> · Book {b.seriesOrder}</>}
+					</p>
+				)
+			}
+			<!-- h2: the page h1 is the site name (index.astro) -->
+			<h2 class="!mb-4 font-display !text-[44px] font-medium uppercase !leading-[1] tracking-[-1.5px] !text-white md:!text-[60px]">{b.title}</h2>
+			{b.blurb && <p class="!mb-4 max-w-xl text-[16px] leading-[1.6] text-white/70">{b.blurb}</p>}
+
+			<!-- One quiet meta line: year or status, plus writing progress while drafting -->
+			<div class="mb-7 flex flex-wrap items-center gap-x-4 gap-y-2 text-[10px] uppercase tracking-[0.1em] text-white/45">
+				<span>{b.year ?? b.status}</span>
+				{
+					pct !== null && (
+						<span class="inline-flex items-center gap-2.5">
+							<span class="relative block h-[2px] w-28 bg-white/15" aria-hidden="true">
+								<span class="absolute inset-y-0 left-0 bg-brand-teal-light" style={`width:${Math.max(pct, 1.5)}%`} />
+							</span>
+							{b.wordCount.toLocaleString()} / {b.targetWordCount!.toLocaleString()} words
+						</span>
+					)
+				}
+			</div>
+
+			{
+				b.link && (
+					<a
+						href={b.link}
+						class="label inline-flex items-center gap-2 border border-white/40 px-5 py-2.5 !text-[14px] !text-white transition hover:border-white hover:bg-white hover:!text-black"
+					>
+						Learn more →
+					</a>
+				)
+			}
+		</div>
+	</div>
+</section>
+
+<style>
+	/* Match main.home in index.astro: 77rem wide, same side padding */
+	.hero-inner {
+		max-width: 77rem;
+		padding-inline: 1rem;
+	}
+	@media (min-width: 640px) {
+		.hero-inner {
+			padding-inline: 1.5rem;
+		}
+	}
+	@media (min-width: 1024px) {
+		.hero-inner {
+			padding-inline: 2.25rem;
+		}
+	}
+</style>

@@ -1,0 +1,62 @@
+---
+// One Google AdSense ad unit.
+//
+// Setup (apps/blog/.env, or Cloudflare Pages → Settings → Environment variables):
+//   PUBLIC_ADSENSE_CLIENT=ca-pub-XXXXXXXXXXXXXXXX       ← your publisher ID
+//   PUBLIC_ADSENSE_SLOT_HOME_SIDEBAR=1234567890         ← ad unit IDs from AdSense
+//   PUBLIC_ADSENSE_SLOT_POST_SIDEBAR=1234567890
+//
+// Without a client + slot ID: shows a labeled placeholder in `astro dev`,
+// and renders nothing in production (no empty boxes on the live site).
+interface Props {
+	/** AdSense ad unit ID (data-ad-slot) */
+	slot?: string;
+	/** "auto" = responsive; "vertical" suits tall sidebars */
+	format?: 'auto' | 'rectangle' | 'vertical' | 'horizontal';
+	/** "in-article": AdSense's native in-article unit (fluid, sits between paragraphs) */
+	layout?: 'in-article';
+	/** Reserved height, so the page doesn't jump when the ad loads */
+	minHeight?: number;
+	/**
+	 * Don't request the ad straight away; a page script calls `adsbygoogle.push({})` itself
+	 * once the slot is in place (used by the mid-post ad, which is moved between paragraphs).
+	 */
+	deferLoad?: boolean;
+	class?: string;
+}
+
+const { slot, format = 'auto', layout, minHeight = 250, deferLoad = false, class: className } = Astro.props;
+const client = import.meta.env.PUBLIC_ADSENSE_CLIENT;
+const live = Boolean(client && slot);
+const showPlaceholder = !live && import.meta.env.DEV;
+// In-article units are fluid and centered; display units are responsive in the given shape
+const insAttrs =
+	layout === 'in-article'
+		? { 'data-ad-layout': 'in-article', 'data-ad-format': 'fluid', style: 'display:block;text-align:center' }
+		: { 'data-ad-format': format, 'data-full-width-responsive': 'true', style: `display:block;min-height:${minHeight}px` };
+---
+
+{
+	(live || showPlaceholder) && (
+		<aside class:list={['ad-slot', className]} aria-label="Advertisement">
+			<p class="label !mb-2 text-[10px] text-muted-foreground">Advertisement</p>
+			{live ? (
+				<>
+					<ins class="adsbygoogle block" data-ad-client={client} data-ad-slot={slot} {...insAttrs} />
+					{!deferLoad && <script is:inline>(window.adsbygoogle = window.adsbygoogle || []).push({});</script>}
+				</>
+			) : (
+				<div
+					class="flex items-center justify-center border border-dashed border-border bg-muted/50 text-center"
+					style={`min-height:${minHeight}px`}
+				>
+					<span class="label px-4 text-[11px] text-muted-foreground">
+						Google AdSense
+						<br />
+						<span class="normal-case tracking-normal">(set PUBLIC_ADSENSE_* to go live)</span>
+					</span>
+				</div>
+			)}
+		</aside>
+	)
+}

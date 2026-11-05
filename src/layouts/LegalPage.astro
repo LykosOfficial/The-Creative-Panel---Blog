@@ -1,0 +1,63 @@
+---
+// Layout for the legal pages (MDX files in src/pages). Usage, in the page's frontmatter:
+//   layout: ../layouts/LegalPage.astro
+//   title: Privacy Policy
+//   description: How The Creative Panel handles your data.
+import BaseHead from '../components/BaseHead.astro';
+import Footer from '../components/Footer.astro';
+import Header from '../components/Header.astro';
+import LightPageHeader from '../components/LightPageHeader.astro';
+import { SITE_TITLE } from '../consts';
+import { legal, legalPages } from '../data/legal';
+
+interface Props {
+	frontmatter: { title: string; description: string };
+}
+const { title, description } = Astro.props.frontmatter;
+const path = Astro.url.pathname.replace(/\/$/, '');
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<!-- Legal pages stay out of search results (still reachable, links still followed) -->
+		<BaseHead title={`${title} — ${SITE_TITLE}`} description={description} noindex />
+	</head>
+	<body>
+		<Header />
+		<LightPageHeader label="Legal" title={title} width="narrow" />
+
+		<main class="page-narrow pb-20 pt-10">
+			<div class="grid gap-10 md:grid-cols-[minmax(0,1fr)_200px] md:gap-14">
+				<article class="legal-body min-w-0">
+					<p class="label !mb-8 !text-[12px] text-muted-foreground">Last updated {legal.lastUpdated}</p>
+					<slot />
+				</article>
+
+				<nav aria-label="Legal pages" class="md:sticky md:top-24 md:self-start">
+					<p class="label !mb-3 !text-[11px] font-semibold text-muted-foreground">Legal</p>
+					<ul class="!m-0 border-l border-border !p-0" role="list">
+						{
+							legalPages.map((p) => (
+								<li class="list-none">
+									<a
+										href={p.href}
+										aria-current={path === p.href ? 'page' : undefined}
+										class:list={[
+											'-ml-px block border-l-2 py-1.5 pl-4 text-[14px] no-underline',
+											path === p.href ? 'border-primary font-medium !text-foreground' : 'border-transparent !text-muted-foreground hover:!text-primary',
+										]}
+									>
+										{p.label}
+									</a>
+								</li>
+							))
+						}
+					</ul>
+				</nav>
+			</div>
+		</main>
+
+		<Footer />
+	</body>
+</html>

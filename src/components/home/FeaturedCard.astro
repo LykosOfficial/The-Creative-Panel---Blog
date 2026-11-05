@@ -1,0 +1,34 @@
+---
+import PostImage from '../PostImage.astro';
+import type { Post } from '../../lib/posts';
+import PostMeta from './PostMeta.astro';
+
+// Large image card with tags, title, date and read time overlaid.
+interface Props {
+	post: Post;
+}
+const { post } = Astro.props;
+const { title, heroImage, tags } = post.data;
+---
+
+<a href={`/blog/${post.id}/`} class="group relative block aspect-[4/5] overflow-hidden bg-brand-ink !text-white no-underline sm:aspect-[5/4]">
+	{
+		heroImage && (
+			<PostImage
+				src={heroImage}
+				alt=""
+				width={720}
+				class="absolute inset-0 h-full w-full !rounded-none object-cover opacity-70 transition duration-500 group-hover:scale-105 group-hover:opacity-80"
+			/>
+		)
+	}
+	<div class="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent"></div>
+
+	<div class="absolute inset-x-0 bottom-0 p-5">
+		<div class="mb-3 flex flex-wrap gap-1.5">
+			{tags.slice(0, 3).map((t) => <span class="border border-brand-teal-light/50 px-1.5 py-0.5 font-display text-[10px] font-semibold uppercase tracking-[0.1em] text-brand-teal-light">{t}</span>)}
+		</div>
+		<h3 class="!mb-2 font-display !text-[24px] font-semibold uppercase !leading-[1.15] !text-white">{title}</h3>
+		<PostMeta post={post} class="text-white/60" />
+	</div>
+</a>

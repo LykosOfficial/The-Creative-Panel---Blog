@@ -1,0 +1,28 @@
+---
+// A post/book image that works for both kinds of source:
+//  - a local file imported by Astro (Markdown posts in src/content) → optimized <Image>
+//  - a URL string (posts written in the admin, stored in the database) → plain <img>
+import type { ImageMetadata } from 'astro';
+import { Image } from 'astro:assets';
+
+interface Props {
+	src: ImageMetadata | string;
+	alt?: string;
+	width?: number;
+	height?: number;
+	class?: string;
+	/** The main image above the fold (post cover): load it first instead of lazily */
+	priority?: boolean;
+}
+const { src, alt = '', width, height, class: className, priority = false } = Astro.props;
+const loading = priority ? 'eager' : 'lazy';
+const fetchpriority = priority ? 'high' : undefined;
+---
+
+{
+	typeof src === 'string' ? (
+		<img src={src} alt={alt} width={width} height={height} class={className} loading={loading} fetchpriority={fetchpriority} decoding="async" />
+	) : (
+		<Image src={src} alt={alt} width={width} height={height} class={className} loading={loading} fetchpriority={fetchpriority} />
+	)
+}

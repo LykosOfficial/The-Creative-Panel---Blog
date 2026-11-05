@@ -1,0 +1,140 @@
+---
+// Site footer (prototype structure): logo + bio | Navigate | Connect,
+// then a newsletter sign-up, then the copyright line.
+import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
+import { legalPages } from '../data/legal';
+import { profile } from '../data/profile';
+
+const year = new Date().getFullYear();
+const apiUrl = import.meta.env.PUBLIC_API_URL ?? '';
+
+const navigate = [
+	{ href: '/', label: 'Latest' },
+	{ href: '/blog', label: 'Archive' },
+	{ href: '/trending', label: 'Trending' },
+	{ href: '/books', label: 'Books' },
+	{ href: '/sites', label: 'Sites' },
+	{ href: '/about', label: 'About' },
+];
+// Socials from src/data/profile.ts, plus the author site and the feed
+const connect = [
+	...profile.socials.map((s) => ({ href: s.url, label: s.label, external: true })),
+	{ href: 'https://joelgreenauthor.com', label: 'joelgreenauthor.com', external: true },
+	{ href: '/rss/', label: 'RSS feed', external: false },
+];
+---
+
+<footer class="border-t border-border bg-background">
+	<div class="footer-inner mx-auto w-full pt-14 pb-8">
+		<!-- Top: brand + link columns -->
+		<div class="grid gap-10 md:grid-cols-[minmax(0,1fr)_auto]">
+			<div class="max-w-sm">
+				<a href="/" class="font-logo text-[20px] font-bold uppercase leading-none tracking-tight no-underline">
+					<span class="text-brand-gold">{SITE_TITLE}</span><span class="text-brand-logo-accent">.</span>
+				</a>
+				<p class="!mb-0 mt-3 text-[15px] leading-relaxed text-muted-foreground">
+					{SITE_DESCRIPTION}. {profile.bio}
+				</p>
+			</div>
+
+			<div class="flex gap-16">
+				<nav aria-label="Footer">
+					<p class="label !mb-3 !text-[11px] font-semibold text-muted-foreground">Navigate</p>
+					<ul class="!m-0 space-y-2 !p-0" role="list">
+						{
+							navigate.map((l) => (
+								<li class="list-none">
+									<a href={l.href} class="text-[14px] !text-foreground/80 hover:!text-primary">{l.label}</a>
+								</li>
+							))
+						}
+					</ul>
+				</nav>
+				<div>
+					<p class="label !mb-3 !text-[11px] font-semibold text-muted-foreground">Connect</p>
+					<ul class="!m-0 space-y-2 !p-0" role="list">
+						{
+							connect.map((l) => (
+								<li class="list-none">
+									<a
+										href={l.href}
+										class="text-[14px] !text-foreground/80 hover:!text-primary"
+										{...(l.external ? { target: '_blank', rel: 'noopener me' } : {})}
+									>
+										{l.label}
+									</a>
+								</li>
+							))
+						}
+					</ul>
+				</div>
+			</div>
+		</div>
+
+		<!-- Newsletter -->
+		<div class="mt-12 border-t border-border pt-8" data-newsletter-root>
+			<div class="mb-2 flex items-center gap-2.5">
+				<svg class="h-4 w-4 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"
+					><rect x="3" y="5" width="18" height="14" rx="1"></rect><path d="m3 7 9 6 9-6"></path></svg
+				>
+				<p class="label !m-0 !text-[12px] font-semibold text-foreground">Newsletter</p>
+			</div>
+			<p class="!mb-4 text-[14px] text-muted-foreground">New chapters, writing notes &amp; behind-the-scenes. No noise.</p>
+			<form class="flex w-full" data-newsletter data-api={apiUrl}>
+				<label for="footer-email" class="sr-only">Email address</label>
+				<input
+					id="footer-email"
+					type="email"
+					name="email"
+					required
+					placeholder="your@email.com"
+					class="w-full min-w-0 border border-input bg-muted px-4 py-3 text-sm outline-none focus:border-primary"
+				/>
+				<button type="submit" class="label shrink-0 bg-primary px-6 !text-[12px] !font-semibold text-primary-foreground hover:opacity-90">
+					Subscribe
+				</button>
+			</form>
+			<p class="!mb-0 mt-3 text-sm" data-newsletter-status role="status" hidden></p>
+			<p class="!mb-0 mt-3 text-[12px] text-muted-foreground">
+				Unsubscribe anytime. See the <a href="/privacy" class="!text-muted-foreground underline hover:!text-primary">Privacy Policy</a>.
+			</p>
+			<!-- EcoSend badge (newsletter provider). Link kept exactly as EcoSend supplied it; white version in dark mode. -->
+			<a href="https://ecosend.io/?utm_cmpaign=site-badge&utm-source=GSN-206777-E" target="_blank" rel="noopener noreferrer" class="mt-5 inline-block">
+				<img src="https://ecosend.io/badge/black.png" width="220" height="80" alt="EcoSend. Climate-conscious email." loading="lazy" class="block dark:hidden" />
+				<img src="https://ecosend.io/badge/white.png" width="220" height="80" alt="EcoSend. Climate-conscious email." loading="lazy" class="hidden dark:block" />
+			</a>
+		</div>
+
+		<!-- Bottom line -->
+		<div class="mt-8 flex flex-col gap-2 border-t border-border pt-6 text-[13px] text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+			<p class="!m-0">© {year} Joel Green. All rights reserved.</p>
+			<nav aria-label="Legal" class="flex flex-wrap items-center gap-x-5 gap-y-1">
+				{legalPages.map((l) => <a href={l.href} class="!text-muted-foreground hover:!text-primary">{l.label}</a>)}
+				{profile.email && <a href={`mailto:${profile.email}`} class="!text-muted-foreground hover:!text-primary">{profile.email}</a>}
+			</nav>
+		</div>
+	</div>
+</footer>
+
+<script>
+	import { initNewsletterForms } from '../lib/newsletter';
+	initNewsletterForms();
+</script>
+
+<style>
+	/* Same width + side padding as the homepage grid */
+	.footer-inner {
+		max-width: 77rem;
+		padding-inline: 1rem;
+	}
+	@media (min-width: 640px) {
+		.footer-inner {
+			padding-inline: 1.5rem;
+		}
+	}
+	@media (min-width: 1024px) {
+		.footer-inner {
+			padding-inline: 2.25rem;
+		}
+	}
+</style>

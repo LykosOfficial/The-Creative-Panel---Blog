@@ -1,0 +1,21 @@
+/**
+ * Deploys the blog (a static Astro site) to Cloudflare as a Worker with static assets.
+ * No server code: Cloudflare serves the files in ./dist directly.
+ *   Build + deploy:  pnpm deploy:blog   (from the repo root)
+ */
+{
+	"$schema": "./node_modules/wrangler/config-schema.json",
+	"name": "joelgreen-studio",
+	"compatibility_date": "2026-11-01",
+	"assets": {
+		"directory": "./dist",
+		// Unknown URLs get the site's 404 page (dist/404.html) with a real 404 status
+		"not_found_handling": "404-page",
+		// /about and /about/ both work; links use the trailing-slash form
+		"html_handling": "auto-trailing-slash"
+	},
+	// Domains (joelgreen.studio, www) are managed in the Cloudflare dashboard, not here,
+	// so deploys never touch them. The workers.dev address is a backup preview link.
+	"workers_dev": true,
+	"observability": { "enabled": true }
+}

@@ -1,0 +1,116 @@
+---
+// Phone-only action bar pinned to the bottom of article pages (prototype: md:hidden).
+// Like + Save are remembered in localStorage (src/lib/reactions.ts).
+interface Props {
+	postId: string;
+	title: string;
+	url: string;
+	/** Like count from the API, once it exists. 0 for now. */
+	likeCount?: number;
+}
+const { postId, title, url, likeCount = 0 } = Astro.props;
+const tweetUrl = `https://x.com/intent/post?text=${encodeURIComponent(title)}&url=${encodeURIComponent(url)}`;
+---
+
+<nav
+	class="post-actions fixed inset-x-0 bottom-0 z-50 flex items-center justify-around border-t border-white/10 bg-[#0f0f0f] px-4 py-3 md:hidden"
+	aria-label="Post actions"
+	data-post-id={postId}
+	data-url={url}
+	data-likes={likeCount}
+>
+	<button type="button" class="action" data-action="like" aria-pressed="false" aria-label="Like this post">
+		<svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"
+			><path d="M12 20.5s-7.5-4.6-9.3-9.2C1.4 8 3.6 4.5 7.1 4.5c2 0 3.6 1.1 4.9 2.8 1.3-1.7 2.9-2.8 4.9-2.8 3.5 0 5.7 3.5 4.4 6.8-1.8 4.6-9.3 9.2-9.3 9.2z"></path></svg
+		>
+		<span data-like-count>{likeCount}</span>
+	</button>
+
+	<button type="button" class="action" data-action="save" aria-pressed="false" aria-label="Save this post">
+		<svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"
+			><path d="M6 3.5h12v17l-6-4-6 4z"></path></svg
+		>
+		<span data-save-label>Save</span>
+	</button>
+
+	<button type="button" class="action" data-action="copy" aria-label="Copy link">
+		<svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"
+			><path d="M9 17H7a5 5 0 0 1 0-10h2M15 7h2a5 5 0 0 1 0 10h-2M8 12h8"></path></svg
+		>
+		<span data-copy-label>Copy</span>
+	</button>
+
+	<a href={tweetUrl} target="_blank" rel="noopener" class="action" aria-label="Share on X">
+		<svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"
+			><path d="M22 4.5s-.9 2-2.4 3c.5 9.5-10.3 14.9-17.1 9.6 2.6.2 4.6-.6 6.1-2-4.6-.4-6.1-4.6-5.3-7.4.9.6 1.9.9 2.6.9C3.6 6.9 3.9 3.6 5.4 2.9 7.6 5.6 10.6 7.2 13.9 7.3 13.3 4 16.3 1.8 19 3.3c1 .2 2-.3 3-.8z"></path></svg
+		>
+		<span>Tweet</span>
+	</a>
+</nav>
+
+<script>
+	// Like/Save state lives in src/lib/reactions.ts (localStorage), shared with the desktop bar.
+	import { copyLink, isOn, likeCount, onChange, startPost, toggle } from '../lib/reactions';
+
+	const bar = document.querySelector<HTMLElement>('.post-actions');
+	if (bar) {
+		const id = bar.dataset.postId!;
+		const baseLikes = Number(bar.dataset.likes ?? 0);
+		const likeBtn = bar.querySelector<HTMLButtonElement>('[data-action="like"]')!;
+		const saveBtn = bar.querySelector<HTMLButtonElement>('[data-action="save"]')!;
+		const copyBtn = bar.querySelector<HTMLButtonElement>('[data-action="copy"]')!;
+
+		startPost(id);
+		onChange(() => {
+			const liked = isOn('like', id);
+			const saved = isOn('save', id);
+			likeBtn.setAttribute('aria-pressed', String(liked));
+			likeBtn.querySelector('[data-like-count]')!.textContent = String(likeCount(id, baseLikes));
+			saveBtn.setAttribute('aria-pressed', String(saved));
+			saveBtn.querySelector('[data-save-label]')!.textContent = saved ? 'Saved' : 'Save';
+		});
+
+		likeBtn.addEventListener('click', () => toggle('like', id));
+		saveBtn.addEventListener('click', () => toggle('save', id));
+		copyBtn.addEventListener('click', async () => {
+			await copyLink(bar.dataset.url ?? location.href);
+			const label = copyBtn.querySelector('[data-copy-label]')!;
+			label.textContent = 'Copied';
+			setTimeout(() => (label.textContent = 'Copy'), 1500);
+		});
+	}
+</script>
+
+<style>
+	/* Prototype: text-[10px] font-display font-700 uppercase tracking-widest text-white/60 */
+	.action {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 0.125rem;
+		font-family: var(--font-display);
+		font-size: 10px;
+		font-weight: 700;
+		text-transform: uppercase;
+		letter-spacing: 0.1em;
+		color: rgb(255 255 255 / 0.6);
+		text-decoration: none;
+		transition: color 0.15s;
+		cursor: pointer;
+	}
+	.action:hover {
+		color: white;
+	}
+	.action[data-action='like'][aria-pressed='true'] {
+		color: #f87171;
+	}
+	.action[data-action='like'][aria-pressed='true'] svg {
+		fill: currentColor;
+	}
+	.action[data-action='save'][aria-pressed='true'] {
+		color: var(--color-brand-teal-light);
+	}
+	.action[data-action='save'][aria-pressed='true'] svg {
+		fill: currentColor;
+	}
+</style>

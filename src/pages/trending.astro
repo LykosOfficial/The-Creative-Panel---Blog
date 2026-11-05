@@ -1,0 +1,202 @@
+---
+// Trending ("Charts"): posts ranked by views or likes, with Most Read / Most Liked tabs.
+// Ranking uses the API counts from build time (lib/stats.ts); numbers refresh live
+// on load (lib/liveStats.ts). Until there are counts, both tabs list newest first.
+import PostImage from '../components/PostImage.astro';
+import { getCollection } from 'astro:content';
+import BaseHead from '../components/BaseHead.astro';
+import Footer from '../components/Footer.astro';
+import Header from '../components/Header.astro';
+import LightPageHeader from '../components/LightPageHeader.astro';
+import { SITE_TITLE } from '../consts';
+import { abs, breadcrumbs } from '../lib/seo';
+import { formatDate, readingTime, sortByDate, type Post } from '../lib/posts';
+import { getAllStats } from '../lib/stats';
+
+const posts = sortByDate(await getCollection('blog'));
+const stats = await getAllStats();
+const schema = [
+	{ '@type': 'CollectionPage', name: 'Trending', url: abs('/trending/'), isPartOf: { '@id': abs('/#website') } },
+	breadcrumbs([{ name: 'Trending', path: '/trending/' }]),
+];
+const score = (p: Post, key: 'views' | 'likes') => stats[p.id]?.[key] ?? 0;
+const ranked = (key: 'views' | 'likes') =>
+	posts.some((p) => score(p, key) > 0) ? [...posts].sort((a, b) => score(b, key) - score(a, key)) : posts;
+
+const tabs = [
+	{ id: 'read', key: 'views' as const, label: 'Most Read', posts: ranked('views').slice(0, 10) },
+	{ id: 'liked', key: 'likes' as const, label: 'Most Liked', posts: ranked('likes').slice(0, 10) },
+];
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<BaseHead
+			title={`Trending — ${SITE_TITLE}`}
+			description="The most read and most liked essays and chapters on The Creative Panel, Joel Green's writing blog, ranked by readers."
+			schema={schema}
+		/>
+	</head>
+	<body>
+		<Header />
+
+		<LightPageHeader label="Charts" title="Trending" width="wide">
+			<div class="flex gap-2" role="tablist" aria-label="Trending lists">
+				{
+					tabs.map((t, i) => (
+						<button
+							type="button"
+							role="tab"
+							id={`tab-${t.id}`}
+							aria-controls={`panel-${t.id}`}
+							aria-selected={i === 0 ? 'true' : 'false'}
+							data-tab={t.id}
+							class="trend-tab"
+						>
+							{t.id === 'read' ? (
+								<svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+									<path d="m3 17 6-6 4 4 8-8M15 7h6v6" />
+								</svg>
+							) : (
+								<svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+									<path d="M12 20.5s-7.5-4.6-9.3-9.2C1.4 8 3.6 4.5 7.1 4.5c2 0 3.6 1.1 4.9 2.8 1.3-1.7 2.9-2.8 4.9-2.8 3.5 0 5.7 3.5 4.4 6.8-1.8 4.6-9.3 9.2-9.3 9.2z" />
+								</svg>
+							)}
+							{t.label}
+						</button>
+					))
+				}
+			</div>
+		</LightPageHeader>
+
+		<main class="trending page-wide">
+			{
+				tabs.map((t, i) => (
+					<ol id={`panel-${t.id}`} role="tabpanel" aria-labelledby={`tab-${t.id}`} class="!mx-auto !my-0 !p-0" hidden={i !== 0}>
+						{t.posts.map((p, rank) => (
+							<li class="list-none">
+								<a href={`/blog/${p.id}/`} class="group grid grid-cols-[auto_minmax(0,1fr)] items-start gap-x-5 py-6 !text-foreground no-underline sm:grid-cols-[64px_minmax(0,1fr)_128px] sm:gap-x-6">
+									<span class="font-display text-[44px] font-semibold leading-none text-foreground/15 transition-colors group-hover:text-primary/40 sm:text-[56px]" aria-hidden="true">
+										{String(rank + 1).padStart(2, '0')}
+									</span>
+									<div class="min-w-0">
+										<p class="!mb-1.5 font-display text-[12px] font-bold uppercase tracking-[0.1em] text-primary [word-spacing:0.35em]">
+											{p.data.tags.slice(0, 3).map((tag) => `#${tag}`).join(' ')}
+										</p>
+										<h2 class="!mb-1.5 font-heading !text-[19px] font-medium !leading-snug transition-colors group-hover:text-primary sm:!text-[20px]">{p.data.title}</h2>
+										<p class="!mb-2.5 text-[14px] leading-relaxed text-muted-foreground">{p.data.description}</p>
+										<p class="!m-0 flex flex-wrap items-center gap-x-2 gap-y-1 text-[12px] uppercase tracking-[0.08em] text-muted-foreground">
+											{t.key === 'likes' && (
+												<svg class="h-3.5 w-3.5 text-red-400" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+													<path d="M12 20.5s-7.5-4.6-9.3-9.2C1.4 8 3.6 4.5 7.1 4.5c2 0 3.6 1.1 4.9 2.8 1.3-1.7 2.9-2.8 4.9-2.8 3.5 0 5.7 3.5 4.4 6.8-1.8 4.6-9.3 9.2-9.3 9.2z" />
+												</svg>
+											)}
+											<span>
+												<span data-live={t.key} data-slug={p.id}>{score(p, t.key).toLocaleString()}</span> {t.key}
+											</span>
+											<span aria-hidden="true">·</span>
+											<span class="inline-flex items-center gap-1.5">
+												<svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+													<circle cx="12" cy="12" r="9" />
+													<path d="M12 7v5l3 2" />
+												</svg>
+												{readingTime(p)} min read
+											</span>
+											<span aria-hidden="true">·</span>
+											<time datetime={p.data.pubDate.toISOString()}>{formatDate(p.data.pubDate)}</time>
+										</p>
+									</div>
+									{p.data.heroImage && (
+										<PostImage src={p.data.heroImage} alt="" width={300} class="col-start-2 mt-4 aspect-[4/3] w-full max-w-[200px] !rounded-none object-cover sm:col-start-3 sm:mt-0 sm:max-w-none" />
+									)}
+								</a>
+							</li>
+						))}
+					</ol>
+				))
+			}
+			{
+				posts.length === 0 && (
+					<p class="!mx-auto !my-10 max-w-xl text-center text-[15px] leading-relaxed text-muted-foreground">
+						Nothing trending yet. The first essays and chapters are on their way.
+					</p>
+				)
+			}
+		</main>
+
+		<Footer />
+
+		<script>
+			import { refreshStats } from '../lib/liveStats';
+			refreshStats();
+
+			// Tabs: show one list at a time; remember the choice in the URL (#liked)
+			const tabs = document.querySelectorAll<HTMLButtonElement>('[data-tab]');
+			const select = (id: string) => {
+				tabs.forEach((tab) => {
+					const on = tab.dataset.tab === id;
+					tab.setAttribute('aria-selected', String(on));
+					document.getElementById(`panel-${tab.dataset.tab}`)!.hidden = !on;
+				});
+			};
+			tabs.forEach((tab) =>
+				tab.addEventListener('click', () => {
+					select(tab.dataset.tab!);
+					history.replaceState(null, '', tab.dataset.tab === 'read' ? location.pathname : `#${tab.dataset.tab}`);
+				}),
+			);
+			if (location.hash === '#liked') select('liked');
+		</script>
+
+		<style>
+			.page-inner {
+				max-width: 77rem;
+				padding-inline: 1rem;
+			}
+			@media (min-width: 640px) {
+				.page-inner {
+					padding-inline: 1.5rem;
+				}
+			}
+			@media (min-width: 1024px) {
+				.page-inner {
+					padding-inline: 2.25rem;
+				}
+			}
+			main.trending {
+				width: 100%;
+				padding-top: 1.5rem;
+				padding-bottom: 4rem;
+			}
+			/* Ranked list sits centered under the header, like the prototype */
+			main.trending ol {
+				max-width: 45rem;
+			}
+
+			.trend-tab {
+				display: inline-flex;
+				align-items: center;
+				gap: 0.6rem;
+				margin-bottom: -1px;
+				padding: 0.9rem 1.25rem;
+				border-bottom: 3px solid transparent;
+				font-family: var(--font-display);
+				font-size: 14px;
+				font-weight: 600;
+				text-transform: uppercase;
+				letter-spacing: 0.1em;
+				color: var(--muted-foreground);
+				cursor: pointer;
+				transition: color 0.15s, border-color 0.15s;
+			}
+			.trend-tab:hover {
+				color: var(--foreground);
+			}
+			.trend-tab[aria-selected='true'] {
+				color: var(--primary);
+				border-bottom-color: var(--primary);
+			}
+		</style>
+	</body>
+</html>

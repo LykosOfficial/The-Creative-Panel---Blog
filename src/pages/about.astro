@@ -1,0 +1,114 @@
+---
+// About ("The writer"): portrait + facts on the left, biography + contact on the right.
+// All text lives in src/data/profile.ts.
+import BaseHead from '../components/BaseHead.astro';
+import Footer from '../components/Footer.astro';
+import Header from '../components/Header.astro';
+import LightPageHeader from '../components/LightPageHeader.astro';
+import SectionTitle from '../components/home/SectionTitle.astro';
+import { SITE_TITLE } from '../consts';
+import { abs, breadcrumbs, person } from '../lib/seo';
+import { profile } from '../data/profile';
+
+const [lead, ...rest] = profile.biography;
+const facts = [
+	{ label: 'Name', value: profile.name },
+	{ label: 'Based', value: profile.facts.based },
+	{ label: 'Genre', value: profile.facts.genre },
+	{ label: 'First published', value: profile.facts.firstPublished },
+];
+const initials = profile.name.split(' ').map((w) => w[0]).join('').slice(0, 2);
+const schema = [
+	{ '@type': 'ProfilePage', url: abs('/about/'), name: 'About Joel Green', mainEntity: { '@id': person['@id'] }, isPartOf: { '@id': abs('/#website') } },
+	breadcrumbs([{ name: 'About', path: '/about/' }]),
+];
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<BaseHead
+			title={`About Joel Green — ${SITE_TITLE}`}
+			description="Joel Green is a sci-fi thriller writer and the author of The Halo, book one of the Astroseed Trilogy. Meet the world architect behind The Creative Panel."
+			image={profile.avatar || undefined}
+			schema={schema}
+		/>
+	</head>
+	<body>
+		<Header />
+		<LightPageHeader label="The writer" title="About" width="narrow" />
+
+		<main class="about page-narrow">
+			<div class="grid gap-10 md:grid-cols-[260px_minmax(0,1fr)] md:gap-12">
+				<!-- Left: portrait + facts -->
+				<aside>
+					{
+						profile.avatar ? (
+							<img src={profile.avatar} alt={profile.name} class="mb-6 aspect-[4/5] w-full max-w-xs border border-border object-cover md:max-w-none" />
+						) : (
+							<div class="mb-6 flex aspect-[4/5] w-full max-w-xs items-center justify-center border border-border bg-muted md:max-w-none" aria-hidden="true">
+								<span class="font-display text-[72px] font-semibold leading-none text-foreground/15">{initials}</span>
+							</div>
+						)
+					}
+					<dl class="!m-0 border border-border">
+						{
+							facts.map((f) => (
+								<div class="flex items-center justify-between gap-4 border-b border-border px-5 py-4 last:border-b-0">
+									<dt class="font-display text-[12px] font-semibold uppercase tracking-[0.1em] text-muted-foreground">{f.label}</dt>
+									<dd class="!m-0 text-right text-[14px]">{f.value || '—'}</dd>
+								</div>
+							))
+						}
+					</dl>
+				</aside>
+
+				<!-- Right: biography + contact -->
+				<div class="min-w-0">
+					<SectionTitle>Biography</SectionTitle>
+					<p class="!mb-5 text-[17px] leading-[1.7] text-foreground">{lead}</p>
+					{rest.map((para) => <p class="!mb-5 text-[15px] leading-[1.75] text-muted-foreground">{para}</p>)}
+
+					<div class="mt-10 border-t border-border pt-8">
+						<SectionTitle>Contact</SectionTitle>
+						{
+							profile.email ? (
+								<p class="!m-0 text-[16px] text-muted-foreground">
+									For inquiries, commissions, or speaking engagements, reach out at{' '}
+									<a href={`mailto:${profile.email}`}>{profile.email}</a>
+								</p>
+							) : (
+								<p class="!m-0 text-[16px] text-muted-foreground">
+									For inquiries, find me at <a href="https://joelgreenauthor.com">joelgreenauthor.com</a>.
+								</p>
+							)
+						}
+					</div>
+				</div>
+			</div>
+		</main>
+
+		<Footer />
+		<style>
+			.page-inner {
+				max-width: 77rem;
+				padding-inline: 1rem;
+			}
+			@media (min-width: 640px) {
+				.page-inner {
+					padding-inline: 1.5rem;
+				}
+			}
+			@media (min-width: 1024px) {
+				.page-inner {
+					padding-inline: 2.25rem;
+				}
+			}
+			main.about {
+				width: 100%;
+				padding-top: 3rem;
+				padding-bottom: 4rem;
+			}
+		</style>
+	</body>
+</html>

@@ -1,0 +1,305 @@
+---
+// Article layout, modeled on the Ink & Insight prototype's post page.
+// [...slug].astro renders each post's Markdown into the <slot />.
+import type { MarkdownHeading } from 'astro';
+import PostImage from '../components/PostImage.astro';
+import BaseHead from '../components/BaseHead.astro';
+import Footer from '../components/Footer.astro';
+import Header from '../components/Header.astro';
+import PostReactions from '../components/post/PostReactions.astro';
+import PostActionBar from '../components/PostActionBar.astro';
+import AdSlot from '../components/AdSlot.astro';
+import AlsoLike from '../components/post/AlsoLike.astro';
+import Comments from '../components/post/Comments.astro';
+import RelatedCards from '../components/post/RelatedCards.astro';
+import { SITE_TITLE } from '../consts';
+import { formatDate, readingTime, seoDescription, wordCount, type Post } from '../lib/posts';
+import { abs, breadcrumbs, person } from '../lib/seo';
+import { getStats } from '../lib/stats';
+
+interface Props {
+	post: Post;
+	related?: Post[];
+	headings?: MarkdownHeading[];
+}
+
+const { post, related = [], headings = [] } = Astro.props;
+const { title, pubDate, updatedDate, heroImage, tags, category } = post.data;
+const description = seoDescription(post);
+
+// Table of contents: only ## and ### headings
+const toc = headings.filter((h) => h.depth === 2 || h.depth === 3);
+// Related = closest matches by shared tags; "You might also like" = the newest other posts
+const relatedCards = related.slice(0, 4);
+const alsoLike = related.slice().sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()).slice(0, 3);
+const pageUrl = new URL(Astro.url.pathname, Astro.site);
+// Like count at build time; the bars swap in the live API count once the page loads
+const { likes, views } = await getStats(post.id);
+
+// Structured data: Google reads this for article rich results (date, author, image)
+const postPath = `/blog/${post.id}/`;
+const coverUrl = heroImage ? abs(typeof heroImage === 'string' ? heroImage : heroImage.src) : abs('/og-default.png');
+const schema = [
+	{
+		'@type': 'BlogPosting',
+		'@id': abs(postPath) + '#article',
+		mainEntityOfPage: abs(postPath),
+		url: abs(postPath),
+		headline: title.slice(0, 110),
+		description,
+		image: [coverUrl],
+		datePublished: pubDate.toISOString(),
+		dateModified: (updatedDate ?? pubDate).toISOString(),
+		author: { '@id': person['@id'], '@type': 'Person', name: person.name, url: person.url },
+		publisher: { '@id': person['@id'] },
+		isPartOf: { '@id': abs('/#website') },
+		articleSection: category,
+		keywords: tags.join(', '),
+		wordCount: wordCount(post),
+		timeRequired: `PT${readingTime(post)}M`,
+		inLanguage: 'en',
+	},
+	breadcrumbs([
+		{ name: 'Archive', path: '/blog/' },
+		{ name: title, path: postPath },
+	]),
+];
+---
+
+<!doctype html>
+
+<html lang="en">
+	<head>
+		<BaseHead
+			title={`${title} — ${SITE_TITLE}`}
+			description={description}
+			image={heroImage}
+			imageAlt={title}
+			type="article"
+			article={{ published: pubDate, modified: updatedDate, section: category, tags }}
+			schema={schema}
+		/>
+	</head>
+
+	<body>
+		<Header />
+		<!-- Reading progress: filled by the script at the bottom -->
+		<div class="reading-progress" aria-hidden="true"><span></span></div>
+
+		<article>
+			<!-- Hero: full-bleed image with the title overlaid -->
+			<header class="relative flex min-h-[340px] items-end overflow-hidden bg-brand-ink text-white md:min-h-[460px]">
+				{
+					heroImage ? (
+						<PostImage src={heroImage} alt={title} width={1600} priority class="absolute inset-0 h-full w-full !rounded-none object-cover opacity-70" />
+					) : (
+						<div
+							class="absolute inset-0 opacity-60"
+							style="background: radial-gradient(50% 90% at 85% 20%, hsl(182 60% 22% / .5), transparent 70%);"
+						/>
+					)
+				}
+				<div class="absolute inset-0 bg-gradient-to-t from-black via-black/55 to-black/10"></div>
+
+				<div class="relative mx-auto w-full max-w-7xl px-4 pb-10 pt-24 sm:px-6">
+					{
+						tags.length > 0 && (
+							<p class="label !mb-4 text-[12px] text-brand-teal-light">{tags.join(' · ')}</p>
+						)
+					}
+					<h1 class="!mb-5 max-w-3xl font-display !text-4xl font-medium uppercase !leading-[1] tracking-[-0.5px] !text-white sm:!text-5xl md:!text-[56px]">
+						{title}
+					</h1>
+					<p class="label !m-0 flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px] text-white/65">
+						<span class="font-logo text-[13px] font-bold tracking-tight text-white">
+							Joel Green<span class="text-brand-logo-accent">.</span>
+						</span>
+						<span aria-hidden="true">·</span>
+						<time datetime={pubDate.toISOString()}>{formatDate(pubDate)}</time>
+						<span aria-hidden="true">·</span>
+						<span>{readingTime(post)} min read</span>
+						<span aria-hidden="true" data-live-wrap={`${post.id}:views`} data-hide-zero hidden={views === 0}>·</span>
+						<span data-live-wrap={`${post.id}:views`} data-hide-zero hidden={views === 0}>
+							<span data-live="views" data-slug={post.id}>{views.toLocaleString()}</span> views
+						</span>
+						{
+							updatedDate && (
+								<>
+									<span aria-hidden="true">·</span>
+									<span>Updated {formatDate(updatedDate)}</span>
+								</>
+							)
+						}
+					</p>
+				</div>
+			</header>
+
+			<main class="article">
+				<!-- Article text on the left, AdSense column on the right (desktop) -->
+				<div class="article-grid">
+				<div class="article-col">
+				<a href="/blog" class="label inline-flex items-center gap-2 !text-[12px] font-semibold">← Back</a>
+				<hr class="my-6" />
+
+				{description && <p class="!mb-8 font-heading text-[19px] leading-snug text-muted-foreground">{description}</p>}
+
+				{
+					toc.length > 0 && (
+						<details class="toc mb-10 border border-border bg-card" open>
+							<summary class="label flex cursor-pointer list-none items-center gap-2 px-5 py-4 !text-[12px] text-muted-foreground">
+								<span aria-hidden="true">☰</span> Table of contents
+							</summary>
+							<ol class="!m-0 border-t border-border !px-5 !py-4">
+								{toc.map((h) => (
+									<li class:list={['list-none !mb-1.5', h.depth === 3 && 'pl-4']}>
+										<a href={`#${h.slug}`} class="text-[15px] !text-foreground hover:!text-primary">
+											{h.text}
+										</a>
+									</li>
+								))}
+							</ol>
+						</details>
+					)
+				}
+
+				<div class="prose article-body">
+					<slot />
+				</div>
+
+				<!-- Phones/tablets: in-article ad, moved after the 3rd paragraph by the script below
+				     (desktop has the sidebar ad instead). Hidden until it's placed. -->
+				<div data-inarticle-ad hidden>
+					<AdSlot slot={import.meta.env.PUBLIC_ADSENSE_SLOT_IN_ARTICLE} layout="in-article" deferLoad class="my-8" />
+				</div>
+
+				<!-- End of post: in-article ad on every screen size -->
+				<AdSlot slot={import.meta.env.PUBLIC_ADSENSE_SLOT_POST_END} layout="in-article" class="mt-10" />
+
+				<!-- Desktop: like / save / share. Phones use PostActionBar. Tags live only in the hero. -->
+				<PostReactions postId={post.id} title={title} url={pageUrl.href} likeCount={likes} />
+
+				</div>
+
+				<div class="hidden lg:block">
+					<AdSlot slot={import.meta.env.PUBLIC_ADSENSE_SLOT_POST_SIDEBAR} format="vertical" minHeight={600} class="sticky top-[80px]" />
+				</div>
+				</div>
+
+				<RelatedCards posts={relatedCards} />
+				<AlsoLike posts={alsoLike} />
+				<Comments slug={post.id} />
+			</main>
+		</article>
+
+		<Footer />
+
+		<!-- Phones only: like / save / copy / tweet bar. The spacer stops it covering the footer. -->
+		<PostActionBar postId={post.id} title={title} url={pageUrl.href} likeCount={likes} />
+		<div class="h-[68px] md:hidden" aria-hidden="true"></div>
+
+		<button type="button" class="to-top" aria-label="Back to top">↑</button>
+
+		<script>
+			// Reading progress bar + back-to-top button
+			const bar = document.querySelector<HTMLElement>('.reading-progress span');
+			const toTop = document.querySelector<HTMLButtonElement>('.to-top');
+			const onScroll = () => {
+				const max = document.documentElement.scrollHeight - innerHeight;
+				if (bar) bar.style.width = `${max > 0 ? (scrollY / max) * 100 : 0}%`;
+				toTop?.classList.toggle('visible', scrollY > 600);
+			};
+			addEventListener('scroll', onScroll, { passive: true });
+			onScroll();
+			toTop?.addEventListener('click', () => scrollTo({ top: 0, behavior: 'smooth' }));
+
+			// Mid-post ad (phones/tablets): move it after the 3rd paragraph, then load it.
+			// Skipped on desktop (sidebar ad) and on short posts, so it never loads unseen.
+			const midAd = document.querySelector<HTMLElement>('[data-inarticle-ad]');
+			if (midAd) {
+				const paragraphs = document.querySelectorAll('.article-body > p');
+				const small = matchMedia('(max-width: 1023.98px)').matches; // below Tailwind's lg
+				if (small && paragraphs.length >= 5) {
+					paragraphs[2].after(midAd);
+					midAd.hidden = false;
+					if (midAd.querySelector('ins.adsbygoogle')) {
+						const w = window as unknown as { adsbygoogle?: object[] };
+						(w.adsbygoogle = w.adsbygoogle || []).push({});
+					}
+				} else {
+					midAd.remove();
+				}
+			}
+
+		</script>
+
+		<style>
+			main.article {
+				width: 100%;
+				max-width: 80rem;
+				padding: 2rem 1rem 4rem;
+			}
+			.article-grid {
+				display: grid;
+				gap: 3rem;
+			}
+			.article-col {
+				min-width: 0;
+				max-width: 768px;
+			}
+			@media (min-width: 1024px) {
+				.article-grid {
+					grid-template-columns: minmax(0, 768px) 300px;
+					justify-content: space-between;
+				}
+			}
+			@media (min-width: 640px) {
+				main.article {
+					padding-inline: 1.5rem;
+				}
+			}
+			.reading-progress {
+				position: sticky;
+				top: var(--header-h, 57px);
+				z-index: 40;
+				height: 3px;
+				margin-bottom: -3px;
+			}
+			.reading-progress span {
+				display: block;
+				height: 100%;
+				width: 0;
+				background: var(--primary);
+			}
+			.toc summary::-webkit-details-marker {
+				display: none;
+			}
+			.to-top {
+				position: fixed;
+				right: 1.5rem;
+				bottom: 1.5rem;
+				z-index: 40;
+				width: 3rem;
+				height: 3rem;
+				border-radius: 999px;
+				background: var(--primary);
+				color: var(--primary-foreground);
+				font-size: 1.25rem;
+				box-shadow: 0 6px 20px rgb(0 0 0 / 0.25);
+				opacity: 0;
+				pointer-events: none;
+				transition: opacity 0.2s;
+			}
+			@media (max-width: 767px) {
+				/* sit above the phone action bar */
+				.to-top {
+					bottom: 5.25rem;
+					right: 1rem;
+				}
+			}
+			.to-top.visible {
+				opacity: 1;
+				pointer-events: auto;
+			}
+		</style>
+	</body>
+</html>

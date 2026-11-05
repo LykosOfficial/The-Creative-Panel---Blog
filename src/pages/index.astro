@@ -1,0 +1,223 @@
+---
+// The magazine homepage.
+// Everything in this "frontmatter" block runs at BUILD time (not in the browser):
+// we load the collections here and pass the data into components as props.
+import { getCollection } from 'astro:content';
+import BaseHead from '../components/BaseHead.astro';
+import Footer from '../components/Footer.astro';
+import Header from '../components/Header.astro';
+import AdSlot from '../components/AdSlot.astro';
+import AboutCard from '../components/home/AboutCard.astro';
+import PressContactCards from '../components/home/PressContactCards.astro';
+import RssCard from '../components/home/RssCard.astro';
+import BookHero from '../components/home/BookHero.astro';
+import BooksRail from '../components/home/BooksRail.astro';
+import FeaturedCard from '../components/home/FeaturedCard.astro';
+import NewsletterBar from '../components/home/NewsletterBar.astro';
+import MostRead from '../components/home/MostRead.astro';
+import PostList from '../components/home/PostList.astro';
+import PostRow from '../components/home/PostRow.astro';
+import SectionTitle from '../components/home/SectionTitle.astro';
+import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
+import { allTags, sortByDate } from '../lib/posts';
+import { abs } from '../lib/seo';
+import { getAllStats } from '../lib/stats';
+
+const posts = sortByDate(await getCollection('blog'));
+const books = (await getCollection('books')).sort((a, b) => a.data.sortOrder - b.data.sortOrder);
+
+const heroBook = books.find((b) => b.data.featured) ?? books[0];
+const featured = posts.filter((p) => p.data.featured).slice(0, 2);
+const latest = posts.filter((p) => !featured.includes(p));
+const tags = allTags(posts);
+
+// Most Liked / You might also like: ranked by API counts; newest first until counts exist.
+const stats = await getAllStats();
+
+// SEO: the homepage describes the blog and lists its newest posts
+const seoDescription =
+	'Essays, chapters and writing notes from Joel Green, author of The Halo, a near-future sci-fi thriller. Worldbuilding, craft and the story behind the stories.';
+const schema = [
+	{
+		'@type': 'Blog',
+		'@id': abs('/#blog'),
+		url: abs('/'),
+		name: SITE_TITLE,
+		description: seoDescription,
+		author: { '@id': abs('/about/#joel-green') },
+		blogPost: posts.slice(0, 10).map((p) => ({
+			'@type': 'BlogPosting',
+			headline: p.data.title,
+			url: abs(`/blog/${p.id}/`),
+			datePublished: p.data.pubDate.toISOString(),
+		})),
+	},
+];
+// (fallback: newest first for likes, oldest first for views, so the two lists differ)
+const rank = (key: 'likes' | 'views') => {
+	const score = (id: string) => stats[id]?.[key] ?? 0;
+	if (posts.some((p) => score(p.id) > 0)) return [...posts].sort((a, b) => score(b.id) - score(a.id));
+	return key === 'likes' ? posts : [...posts].reverse();
+};
+const mostLiked = rank('likes').slice(0, 3);
+const alsoLike = rank('views').filter((p) => !featured.includes(p)).slice(0, 3);
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<BaseHead title={`${SITE_TITLE} — ${SITE_DESCRIPTION}`} description={seoDescription} schema={schema} />
+	</head>
+	<body>
+		<!-- The page heading for search engines and screen readers (the hero shows the featured book) -->
+		<h1 class="sr-only">{SITE_TITLE}: {SITE_DESCRIPTION}</h1>
+		<Header />
+		{heroBook && <BookHero book={heroBook} />}
+		<NewsletterBar />
+
+		<main class="home">
+			<!-- Left: books -->
+			<aside class="order-2 lg:order-1">
+				<!-- Sticky on desktop: stays in view under the header while the page scrolls -->
+				<div class="lg:sticky lg:top-[80px]">
+					<BooksRail books={books} />
+				</div>
+			</aside>
+
+			<!-- Center: tags, featured, latest, most read, most liked / also like -->
+			<div class="order-1 min-w-0 lg:order-2">
+				<!-- Tag filter only once there are tags to filter by -->
+				<div class="tag-filter mb-8 flex flex-wrap gap-1.5" hidden={tags.length === 0}>
+					<button type="button" class="tag-chip active" data-tag="">All</button>
+					{
+						tags.map((t) => (
+							<button type="button" class="tag-chip" data-tag={t}>
+								#{t}
+							</button>
+						))
+					}
+				</div>
+
+				{
+					featured.length > 0 && (
+						<section class="mb-12">
+							<SectionTitle>Featured</SectionTitle>
+							<div class="grid gap-px sm:grid-cols-2">
+								{featured.map((post) => <FeaturedCard post={post} />)}
+							</div>
+						</section>
+					)
+				}
+
+				<section>
+					<SectionTitle>Latest</SectionTitle>
+					<ul class="!m-0 !p-0" role="list">
+						{latest.map((post) => <PostRow post={post} />)}
+					</ul>
+					<p class="no-results hidden text-sm text-muted-foreground">No posts with that tag yet.</p>
+					{
+						posts.length === 0 ? (
+							// Before the first post: say so, and point to the newsletter
+							<p class="!mb-0 border border-dashed border-border px-6 py-8 text-[15px] leading-relaxed text-muted-foreground">
+								The first essays and chapters are on their way. Subscribe to the newsletter above to get them first.
+							</p>
+						) : (
+							<a href="/blog" class="label mt-6 inline-block !text-[12px] font-semibold">View the archive →</a>
+						)
+					}
+				</section>
+
+				<MostRead posts={posts} />
+
+				<div class="mt-12 grid gap-10 lg:grid-cols-2 lg:gap-6">
+					<PostList title="Most Liked" icon="heart" meta="likes" posts={mostLiked} />
+					<PostList title="You might also like" icon="sparkle" meta="views" posts={alsoLike} />
+				</div>
+			</div>
+
+			<!-- Right: about -->
+			<aside class="order-3 flex flex-col gap-6">
+				<AboutCard />
+				<PressContactCards />
+				<!-- AdSense: right sidebar -->
+				<AdSlot slot={import.meta.env.PUBLIC_ADSENSE_SLOT_HOME_SIDEBAR} format="vertical" minHeight={600} />
+				<!-- Sticky on desktop once you scroll past the cards above -->
+				<div class="lg:sticky lg:top-[80px]">
+					<RssCard />
+				</div>
+			</aside>
+		</main>
+
+		<Footer />
+
+		<script>
+			// Live like/view counts from the API (hearts, Most Read, Most Liked)
+			import { refreshStats } from '../lib/liveStats';
+			refreshStats();
+
+			// Tag chips: show only "Latest" posts that have the chosen tag.
+			const chips = document.querySelectorAll<HTMLButtonElement>('.tag-chip');
+			const rows = document.querySelectorAll<HTMLElement>('.post-row');
+			const empty = document.querySelector<HTMLElement>('.no-results');
+
+			chips.forEach((chip) =>
+				chip.addEventListener('click', () => {
+					const tag = chip.dataset.tag ?? '';
+					chips.forEach((c) => c.classList.toggle('active', c === chip));
+					let shown = 0;
+					rows.forEach((row) => {
+						const match = !tag || (row.dataset.tags ?? '').split(' ').includes(tag);
+						row.classList.toggle('hidden', !match);
+						if (match) shown++;
+					});
+					empty?.classList.toggle('hidden', shown > 0);
+				}),
+			);
+		</script>
+
+		<style>
+			/* Prototype grid: 220px | content | 220px, ~36px gutters, 77rem max */
+			main.home {
+				display: grid;
+				gap: 2.5rem;
+				width: 100%;
+				max-width: 77rem;
+				padding: 2.5rem 1rem 4rem;
+			}
+			@media (min-width: 640px) {
+				main.home {
+					padding-inline: 1.5rem;
+				}
+			}
+			@media (min-width: 1024px) {
+				main.home {
+					grid-template-columns: 220px minmax(0, 1fr) 220px;
+					gap: 2.25rem;
+					padding-inline: 2.25rem;
+				}
+			}
+			.tag-chip {
+				font-family: var(--font-display);
+				text-transform: uppercase;
+				letter-spacing: 0.08em;
+				font-size: 10px; /* prototype: 10px, ~29px tall */
+				padding: 0.35rem 0.75rem;
+				line-height: 1.5;
+				border: 1px solid var(--border);
+				background: var(--card);
+				color: var(--muted-foreground);
+				cursor: pointer;
+				transition: all 0.15s;
+			}
+			.tag-chip:hover {
+				border-color: var(--primary);
+				color: var(--primary);
+			}
+			.tag-chip.active {
+				background: var(--primary);
+				border-color: var(--primary);
+				color: var(--primary-foreground);
+			}
+		</style>
+	</body>
+</html>

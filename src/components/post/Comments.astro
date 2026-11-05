@@ -1,0 +1,145 @@
+---
+// Comments. Loads + posts to services/api:
+//   GET  {PUBLIC_API_URL}/posts/:slug/comments  → [{ name, body, createdAt }]
+//   POST {PUBLIC_API_URL}/posts/:slug/comments  ← { name, email?, body }
+// Until those API routes exist it simply shows "0 comments".
+interface Props {
+	slug: string;
+}
+const { slug } = Astro.props;
+const apiUrl = import.meta.env.PUBLIC_API_URL ?? '';
+---
+
+<section class="comments relative mt-14" data-api={apiUrl} data-slug={slug}>
+	<div class="mb-6 flex items-center gap-3">
+		<svg class="h-5 w-5 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"
+			><path d="M4 4.5h16v11H9l-5 4z"></path></svg
+		>
+		<h2 class="label !m-0 !text-[16px] !font-semibold tracking-[0.1em] text-foreground">
+			<span data-comment-count>0</span> <span data-comment-word>Comments</span>
+		</h2>
+	</div>
+
+	<ul class="comment-list !m-0 !p-0" role="list"></ul>
+	<p class="comment-empty !mb-8 text-[15px] uppercase tracking-[0.12em] text-muted-foreground">Be the first to comment.</p>
+
+	<form class="comment-form border border-border bg-card p-6">
+		<p class="label !mb-4 !text-[13px] font-semibold text-muted-foreground">Leave a comment</p>
+		<label class="sr-only" for="c-name">Your name</label>
+		<input id="c-name" name="name" required maxlength="80" placeholder="Your name *" class="field" />
+		<label class="sr-only" for="c-email">Email</label>
+		<input id="c-email" name="email" type="email" maxlength="200" placeholder="Email (optional, not shown)" class="field" />
+		<label class="sr-only" for="c-body">Your comment</label>
+		<textarea id="c-body" name="body" required maxlength="4000" rows="5" placeholder="Your thoughts… *" class="field resize-y"></textarea>
+		<!-- Honeypot: hidden from people, but bots fill it in. The API silently drops those. -->
+		<div class="hp" aria-hidden="true">
+			<label for="c-website">Website</label>
+			<input id="c-website" name="website" tabindex="-1" autocomplete="off" />
+		</div>
+		<div class="flex items-center justify-between gap-4">
+			<p class="comment-status !m-0 text-sm" role="status"></p>
+			<button type="submit" class="label shrink-0 bg-primary px-5 py-3 !text-[12px] font-semibold text-primary-foreground hover:opacity-90">Post comment</button>
+		</div>
+	</form>
+</section>
+
+<script>
+	type Comment = { name: string; body: string; createdAt: string };
+	const root = document.querySelector<HTMLElement>('.comments');
+	if (root) {
+		const base = `${root.dataset.api}/posts/${root.dataset.slug}/comments`;
+		const list = root.querySelector('.comment-list')!;
+		const empty = root.querySelector<HTMLElement>('.comment-empty')!;
+		const form = root.querySelector<HTMLFormElement>('.comment-form')!;
+		const status = root.querySelector<HTMLElement>('.comment-status')!;
+		const comments: Comment[] = [];
+
+		const paint = () => {
+			root.querySelector('[data-comment-count]')!.textContent = String(comments.length);
+			root.querySelector('[data-comment-word]')!.textContent = comments.length === 1 ? 'Comment' : 'Comments';
+			empty.hidden = comments.length > 0;
+			list.innerHTML = '';
+			for (const c of comments) {
+				// textContent (not innerHTML) so visitors can't inject HTML
+				const li = document.createElement('li');
+				li.className = 'list-none border-b border-border py-5';
+				const meta = document.createElement('p');
+				meta.className = 'label !mb-2 text-[12px] text-muted-foreground';
+				const name = document.createElement('span');
+				name.className = 'font-semibold text-foreground';
+				name.textContent = c.name;
+				meta.append(name, ` · ${new Date(c.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`);
+				const body = document.createElement('p');
+				body.className = '!m-0 whitespace-pre-line text-[16px]';
+				body.textContent = c.body;
+				li.append(meta, body);
+				list.append(li);
+			}
+		};
+
+		fetch(base)
+			.then((r) => (r.ok ? r.json() : []))
+			.then((data: Comment[]) => {
+				comments.push(...data);
+				paint();
+			})
+			.catch(() => paint());
+
+		form.addEventListener('submit', async (e) => {
+			e.preventDefault();
+			const data = Object.fromEntries(new FormData(form)) as Record<string, string>;
+			status.textContent = 'Posting…';
+			status.style.color = '';
+			try {
+				const res = await fetch(base, {
+					method: 'POST',
+					headers: { 'Content-Type': 'application/json' },
+					body: JSON.stringify(data),
+				});
+				const json = await res.json().catch(() => ({}));
+				// The API sends a readable message for 400 (validation) and 429 (too fast)
+				if (!res.ok) throw new Error(json.message ?? "Couldn't post your comment. Please try again.");
+				form.reset();
+				if (json.status === 'PENDING') {
+					status.textContent = "Thanks! Your comment will appear once it's approved.";
+				} else {
+					comments.push({ name: json.name, body: json.body, createdAt: json.createdAt });
+					paint();
+					status.textContent = 'Thanks! Your comment is posted.';
+				}
+				status.style.color = 'var(--primary)';
+			} catch (err) {
+				status.textContent = err instanceof Error && err.message ? err.message : "Couldn't post your comment. Please try again.";
+				status.style.color = 'var(--destructive)';
+			}
+		});
+	}
+</script>
+
+<style>
+	.hp {
+		position: absolute;
+		left: -9999px;
+		width: 1px;
+		height: 1px;
+		overflow: hidden;
+	}
+	.field {
+		display: block;
+		width: 100%;
+		margin-bottom: 1rem;
+		padding: 0.85rem 1rem;
+		border: 1px solid var(--border);
+		background: var(--background);
+		color: var(--foreground);
+		font-size: 16px;
+		outline: none;
+	}
+	.field::placeholder {
+		color: var(--muted-foreground);
+		opacity: 0.8;
+	}
+	.field:focus {
+		border-color: var(--primary);
+	}
+</style>
