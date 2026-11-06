@@ -1,4 +1,5 @@
 ---
+import { relFor } from '../lib/rehypeNofollow.mjs';
 // Site footer (prototype structure): logo + bio | Navigate | Connect,
 // then a newsletter sign-up, then the copyright line.
 import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
@@ -59,7 +60,7 @@ const connect = [
 									<a
 										href={l.href}
 										class="text-[14px] !text-foreground/80 hover:!text-primary"
-										{...(l.external ? { target: '_blank', rel: 'noopener me' } : {})}
+										{...(l.external ? { target: '_blank', rel: relFor(l.href, 'noopener me') } : {})}
 									>
 										{l.label}
 									</a>

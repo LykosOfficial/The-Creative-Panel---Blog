@@ -1,4 +1,5 @@
 ---
+import { relFor } from '../../lib/rehypeNofollow.mjs';
 // Left sidebar: vertical book carousel. Shows 3 at a time; ▲/▼ scroll through the rest.
 import type { CollectionEntry } from 'astro:content';
 import SectionTitle from './SectionTitle.astro';
@@ -20,7 +21,7 @@ const { books } = Astro.props;
 		{
 			books.map(({ data: b }) => (
 				<li class="list-none snap-start">
-					<a href={b.link ?? '/books'} class="group relative flex h-[73px] flex-col justify-center overflow-hidden bg-gradient-to-br from-[#123d3f] via-[#0b1f20] to-black px-3.5 !text-white no-underline">
+					<a href={b.link ?? '/books'} rel={relFor(b.link ?? '')} class="group relative flex h-[73px] flex-col justify-center overflow-hidden bg-gradient-to-br from-[#123d3f] via-[#0b1f20] to-black px-3.5 !text-white no-underline">
 						{b.coverImage && (
 							<img src={b.coverImage} alt="" class="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-105" />
 						)}

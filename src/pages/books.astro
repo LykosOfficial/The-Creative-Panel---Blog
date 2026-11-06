@@ -1,4 +1,5 @@
 ---
+import { relFor } from '../lib/rehypeNofollow.mjs';
 // Books ("Published works"): grouped by series, each book a card with cover, genre, title, year.
 import { getCollection, type CollectionEntry } from 'astro:content';
 import BaseHead from '../components/BaseHead.astro';
@@ -60,7 +61,7 @@ const booksDescription = fullDescription.length > 160 ? fullDescription.slice(0,
 						<!-- 1px ring on each card = thin dividers, without filling empty grid cells -->
 						<div class="grid gap-px sm:grid-cols-2 lg:grid-cols-3">
 							{list.map(({ data: b }) => (
-								<a href={b.link ?? '#'} class="group block bg-card p-6 !text-foreground no-underline ring-1 ring-border transition-colors hover:bg-muted sm:p-7">
+								<a href={b.link ?? '#'} rel={relFor(b.link ?? '')} class="group block bg-card p-6 !text-foreground no-underline ring-1 ring-border transition-colors hover:bg-muted sm:p-7">
 									<div class="mb-6 aspect-[3/4] overflow-hidden bg-brand-ink">
 										{b.coverImage ? (
 											<img src={b.coverImage} alt={`${b.title} cover art`} class="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
