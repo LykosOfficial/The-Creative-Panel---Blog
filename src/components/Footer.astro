@@ -100,11 +100,19 @@ const connect = [
 				Unsubscribe anytime. See the <a href="/privacy" class="!text-muted-foreground underline hover:!text-primary">Privacy Policy</a>.
 			</p>
 			<!-- EcoSend badge (newsletter provider). Link kept exactly as EcoSend supplied it; white version in dark mode. -->
-			<a href="https://ecosend.io/?utm_cmpaign=site-badge&utm-source=GSN-206777-E" target="_blank" rel="noopener noreferrer" class="mt-5 inline-block">
+			<a href="https://ecosend.io/?utm_cmpaign=site-badge&utm-source=GSN-206777-E" target="_blank" rel="noopener nofollow noreferrer" class="mt-5 inline-block">
 				<img src="https://ecosend.io/badge/black.png" width="220" height="80" alt="EcoSend. Climate-conscious email." loading="lazy" class="block dark:hidden" />
 				<img src="https://ecosend.io/badge/white.png" width="220" height="80" alt="EcoSend. Climate-conscious email." loading="lazy" class="hidden dark:block" />
 			</a>
 		</div>
+
+		<!-- Plain-language note on ads and analytics (details in the Privacy and Cookie policies) -->
+		<p class="!mb-0 mt-8 max-w-3xl text-[13px] leading-relaxed text-muted-foreground">
+			<strong class="font-semibold text-foreground/80">Ads &amp; analytics:</strong> {SITE_TITLE} is free to read. Ads from Google AdSense
+			help pay for hosting and keep it running, and Google Analytics counts visits so I can see which writing
+			people enjoy. Both use cookies. <a href="/privacy#advertising" class="!text-muted-foreground underline hover:!text-primary">How your data is used</a>
+			· <a href="/cookies" class="!text-muted-foreground underline hover:!text-primary">Your choices</a>
+		</p>
 
 		<!-- Bottom line -->
 		<div class="mt-8 flex flex-col gap-2 border-t border-border pt-6 text-[13px] text-muted-foreground sm:flex-row sm:items-center sm:justify-between">

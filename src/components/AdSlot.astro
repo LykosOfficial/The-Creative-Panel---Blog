@@ -39,7 +39,9 @@ const insAttrs =
 {
 	(live || showPlaceholder) && (
 		<aside class:list={['ad-slot', className]} aria-label="Advertisement">
-			<p class="label !mb-2 text-[10px] text-muted-foreground">Advertisement</p>
+			<p class="label !mb-2 text-[10px] text-muted-foreground">
+				Advertisement · <a href="/privacy#advertising" class="!text-muted-foreground no-underline hover:!text-primary">helps keep this site running</a>
+			</p>
 			{live ? (
 				<>
 					<ins class="adsbygoogle block" data-ad-client={client} data-ad-slot={slot} {...insAttrs} />
