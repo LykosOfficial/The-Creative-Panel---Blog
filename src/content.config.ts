@@ -23,7 +23,18 @@ type ApiPost = {
 	tags: string[] | null;
 	featured: boolean;
 	publishedAt: string;
+	updatedAt?: string;
 };
+
+/**
+ * "Edited" time for a post: the API's updatedAt, but only when it's clearly after publishing
+ * (saving to publish, or saving a scheduled post, isn't an edit). View/like counts are stored
+ * separately, so they never change updatedAt.
+ */
+function editedAfterPublish(publishedAt: string, updatedAt?: string) {
+	if (!updatedAt) return undefined;
+	return new Date(updatedAt).getTime() - new Date(publishedAt).getTime() > 10 * 60_000 ? updatedAt : undefined;
+}
 
 const blog = defineCollection({
 	loader: apiLoader<ApiPost>({
@@ -36,6 +47,7 @@ const blog = defineCollection({
 				title: p.title,
 				description: p.excerpt ?? p.subtitle ?? '',
 				pubDate: p.publishedAt,
+				updatedDate: editedAfterPublish(p.publishedAt, p.updatedAt),
 				heroImage: p.coverImage ?? undefined,
 				category: p.category ?? undefined,
 				tags: Array.isArray(p.tags) ? p.tags : [],

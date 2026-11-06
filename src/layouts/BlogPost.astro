@@ -13,7 +13,8 @@ import AlsoLike from '../components/post/AlsoLike.astro';
 import Comments from '../components/post/Comments.astro';
 import RelatedCards from '../components/post/RelatedCards.astro';
 import { SITE_TITLE } from '../consts';
-import { formatDate, readingTime, seoDescription, wordCount, type Post } from '../lib/posts';
+import TimeAgo from '../components/TimeAgo.astro';
+import { readingTime, seoDescription, wordCount, type Post } from '../lib/posts';
 import { abs, breadcrumbs, person } from '../lib/seo';
 import { getStats } from '../lib/stats';
 
@@ -115,7 +116,7 @@ const schema = [
 							Joel Green<span class="text-brand-logo-accent">.</span>
 						</span>
 						<span aria-hidden="true">·</span>
-						<time datetime={pubDate.toISOString()}>{formatDate(pubDate)}</time>
+						<TimeAgo date={pubDate} prefix="Posted" />
 						<span aria-hidden="true">·</span>
 						<span>{readingTime(post)} min read</span>
 						<span aria-hidden="true" data-live-wrap={`${post.id}:views`} data-hide-zero hidden={views === 0}>·</span>
@@ -126,7 +127,7 @@ const schema = [
 							updatedDate && (
 								<>
 									<span aria-hidden="true">·</span>
-									<span>Updated {formatDate(updatedDate)}</span>
+									<TimeAgo date={updatedDate} prefix="Edited" />
 								</>
 							)
 						}
