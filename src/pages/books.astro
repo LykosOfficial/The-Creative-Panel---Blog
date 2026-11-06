@@ -37,7 +37,8 @@ const bookSchema = books.map((b) => ({
 }));
 const schema = [{ '@type': 'CollectionPage', name: 'Books', url: abs('/books/'), mainEntity: bookSchema }, breadcrumbs([{ name: 'Books', path: '/books/' }])];
 const lead = books[0];
-const series = lead?.data.series ? `, book ${lead.data.seriesOrder ?? 1} of the ${lead.data.series}` : '';
+const ordinal = (n: number) => ['One', 'Two', 'Three', 'Four', 'Five'][n - 1] ?? String(n);
+const series = lead?.data.series ? `, Book ${ordinal(lead.data.seriesOrder ?? 1)} of the ${lead.data.series}` : '';
 const blurb = lead?.data.blurb ? `. ${lead.data.blurb}` : '.';
 const fullDescription = lead ? `Novels by Joel Green, including ${lead.data.title}${series}${blurb}` : 'Novels by Joel Green.';
 // Search snippets get cut around 160 characters

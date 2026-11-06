@@ -13,8 +13,9 @@ export const person = {
 	'@id': abs('/about/#joel-green'),
 	name: profile.name,
 	url: abs('/about/'),
-	jobTitle: profile.role,
-	description: profile.bio,
+	jobTitle: 'Author',
+	description: `Sci-fi thriller author, writing The Halo, Book One of the Astroseed Trilogy. ${profile.bio}`,
+	knowsAbout: ['Science fiction', 'Worldbuilding', 'Mythology', 'Thriller fiction', 'Creative writing'],
 	...(profile.avatar ? { image: abs(profile.avatar) } : {}),
 	sameAs: ['https://joelgreenauthor.com', ...profile.socials.map((s) => s.url)],
 };
