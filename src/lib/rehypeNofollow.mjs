@@ -14,6 +14,17 @@ export function isExternal(href) {
 	}
 }
 
+/**
+ * A link typed as a bare domain ("joelgreenauthor.com", "www.x.com/joel") would open as a page
+ * of this site, so add https://. File names like "cover.png" or "page.html" are left alone.
+ */
+export function fixBareDomain(href) {
+	if (typeof href !== 'string') return href;
+	const m = /^(?:www\.)?[a-z0-9-]+(?:\.[a-z0-9-]+)*\.([a-z]{2,24})(?=[/?#]|$)/i.exec(href);
+	if (!m || /^(html?|php|aspx?|png|jpe?g|gif|webp|avif|svg|pdf|md|mdx|txt|xml|json|zip|mp[34])$/i.test(m[1])) return href;
+	return `https://${href}`;
+}
+
 /** rel value for a link: adds "nofollow noopener" to external links, keeping any extra words (e.g. "me") */
 export function relFor(href, extra = '') {
 	const words = new Set(String(extra).split(/\s+/).filter(Boolean));
@@ -24,9 +35,10 @@ export function relFor(href, extra = '') {
 	return words.size ? [...words].join(' ') : undefined;
 }
 
-/** rehype plugin: applies relFor() to every <a> in rendered Markdown (posts from the admin) */
+/** rehype plugin: fixes bare-domain links and applies relFor() to every <a> in rendered Markdown (posts from the admin) */
 export default function rehypeNofollow() {
 	const visit = (node) => {
+		if (node.type === 'element' && node.tagName === 'a' && node.properties) node.properties.href = fixBareDomain(node.properties.href);
 		if (node.type === 'element' && node.tagName === 'a' && isExternal(node.properties?.href)) {
 			const current = node.properties.rel;
 			const rel = relFor(node.properties.href, Array.isArray(current) ? current.join(' ') : current);
