@@ -26,6 +26,7 @@ interface Props {
 
 const { title, description, image, imageAlt, type = 'website', article, noindex = false, schema = [] } = Astro.props;
 const adsenseClient = import.meta.env.PUBLIC_ADSENSE_CLIENT;
+const gtmId = import.meta.env.PUBLIC_GTM_ID;
 
 // Canonical: always the production URL with a trailing slash (matches the built folders),
 // so search engines see one URL per page
@@ -71,6 +72,24 @@ const jsonLd = noindex ? null : JSON.stringify(graph(...schema)).replace(/</g, '
 			src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adsenseClient}`}
 			crossorigin="anonymous"
 		/>
+	)
+}
+
+<!-- Google Tag Manager (only once a container ID is configured). The tags themselves
+     (Analytics etc.) are set up in tagmanager.google.com, not here. -->
+{
+	gtmId && (
+		<>
+			<script is:inline define:vars={{ gtmId }}>
+				window.dataLayer = window.dataLayer || [];
+				function gtag() { dataLayer.push(arguments); }
+				window.gtag = gtag;
+				gtag("js", new Date());
+				// The start event GTM's "All pages" trigger listens for
+				dataLayer.push({ "gtm.start": Date.now(), event: "gtm.js" });
+			</script>
+			<script is:inline async src={`https://www.googletagmanager.com/gtm.js?id=${gtmId}`} />
+		</>
 	)
 }
 
