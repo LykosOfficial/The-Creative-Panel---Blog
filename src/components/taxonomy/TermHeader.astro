@@ -1,0 +1,47 @@
+---
+// Big page title for category and tag pages (the "Stream" top): oversized name with the
+// teal dot, a one-line description, the post count, and chips to the other sections.
+interface Props {
+	label: string;
+	kicker: string;
+	description?: string;
+	count: number;
+	siblings?: { label: string; href: string; current?: boolean }[];
+	page?: { current: number; total: number };
+	/** Replaces "12 posts · page 1 of 2", e.g. "18 tags" on the tags index */
+	meta?: string;
+}
+const { label, kicker, description, count, siblings = [], page = { current: 1, total: 1 }, meta } = Astro.props;
+---
+
+<section class="overflow-hidden border-b border-border">
+	<div class="page-wide pb-10 pt-14 md:pt-20">
+		<p class="label !mb-2 !text-[12px] text-primary">{kicker}</p>
+		<h1 class="!m-0 break-words font-display !text-[72px] font-bold uppercase !leading-[0.85] tracking-[-2px] sm:!text-[110px] lg:!text-[150px]">
+			{label}<span class="text-brand-logo-accent">.</span>
+		</h1>
+		<div class="mt-6 flex flex-wrap items-end justify-between gap-4">
+			{description && <p class="!m-0 max-w-xl text-[17px] leading-relaxed text-muted-foreground">{description}</p>}
+			<p class="label !m-0 !text-[12px] text-muted-foreground">
+				{meta ?? `${count} ${count === 1 ? 'post' : 'posts'}${page.total > 1 ? ` · page ${page.current} of ${page.total}` : ''}`}
+			</p>
+		</div>
+		{
+			siblings.length > 0 && (
+				<nav aria-label="Sections" class="mt-6 flex flex-wrap gap-1.5">
+					{siblings.map((s) =>
+						s.current ? (
+							<span class="tag-chip !border-foreground !bg-foreground !text-background" aria-current="page">
+								{s.label}
+							</span>
+						) : (
+							<a href={s.href} class="tag-chip">
+								{s.label}
+							</a>
+						),
+					)}
+				</nav>
+			)
+		}
+	</div>
+</section>

@@ -1,17 +1,20 @@
 ---
-// All categories (/categories/), biggest first, with how many posts each has.
+// All categories (/categories/): big title, then one row per section with its description,
+// post count and newest post. Biggest sections first.
 import { getCollection } from 'astro:content';
 import BaseHead from '../../components/BaseHead.astro';
 import Footer from '../../components/Footer.astro';
 import Header from '../../components/Header.astro';
-import LightPageHeader from '../../components/LightPageHeader.astro';
+import PostImage from '../../components/PostImage.astro';
+import TermHeader from '../../components/taxonomy/TermHeader.astro';
 import { SITE_TITLE } from '../../consts';
+import { CATEGORY_BLURBS } from '../../data/categories';
+import { formatDate, sortByDate } from '../../lib/posts';
 import { abs, breadcrumbs } from '../../lib/seo';
 import { MIN_POSTS_TO_INDEX, categoryIndex } from '../../lib/taxonomy';
 
 const categories = categoryIndex(await getCollection('blog'));
-// Worth indexing once at least one category page is (otherwise it's a list of thin pages)
-const indexable = categories.some((t) => t.posts.length >= MIN_POSTS_TO_INDEX);
+const indexable = categories.some((c) => c.posts.length >= MIN_POSTS_TO_INDEX);
 const schema = [
 	{ '@type': 'CollectionPage', name: 'Categories', url: abs('/categories/'), isPartOf: { '@id': abs('/#website') } },
 	breadcrumbs([{ name: 'Categories', path: '/categories/' }]),
@@ -30,38 +33,58 @@ const schema = [
 	</head>
 	<body>
 		<Header />
-
-		<LightPageHeader label="Browse" title="Categories" width="narrow" />
-
-		<main class="categories-page page-narrow">
+		<TermHeader
+			label="Categories"
+			kicker="Browse by section"
+			description="The sections of The Creative Panel. Each one collects every post written for it."
+			count={categories.length}
+			meta={`${categories.length} ${categories.length === 1 ? 'section' : 'sections'}`}
+			siblings={[
+				{ label: 'Categories', href: '/categories/', current: true },
+				{ label: 'Tags', href: '/tags/' },
+				{ label: 'Archive', href: '/blog/' },
+			]}
+		/>
+		<main class="page-wide py-12">
 			{
 				categories.length > 0 ? (
-					<ul class="!m-0 grid gap-px border border-border bg-border !p-0 sm:grid-cols-2" role="list">
-						{categories.map((t) => (
-							<li class="list-none bg-background">
-								<a href={`/categories/${t.slug}/`} class="group flex items-center justify-between gap-4 p-4 !text-foreground no-underline transition-colors hover:bg-muted sm:p-5">
-									<span class="font-display text-[17px] font-semibold uppercase tracking-[-0.1px] transition-colors group-hover:text-primary">{t.label}</span>
-									<span class="shrink-0 text-[12px] uppercase tracking-[0.08em] text-muted-foreground">
-										{t.posts.length} {t.posts.length === 1 ? 'post' : 'posts'}
-									</span>
-								</a>
-							</li>
-						))}
+					<ul class="!m-0 border-t border-border !p-0" role="list">
+						{categories.map((c) => {
+							const latest = sortByDate(c.posts)[0];
+							return (
+								<li class="list-none border-b border-border">
+									<div class="grid items-center gap-6 py-8 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+										<a href={`/categories/${c.slug}/`} class="group block !text-foreground no-underline">
+											<p class="label !mb-2 !text-[12px] text-muted-foreground">
+												{c.posts.length} {c.posts.length === 1 ? 'post' : 'posts'}
+											</p>
+											<h2 class="!mb-2 font-display !text-[44px] font-bold uppercase !leading-[0.9] tracking-[-1px] transition-colors group-hover:text-primary md:!text-[56px]">
+												{c.label}
+												<span class="text-brand-logo-accent">.</span>
+											</h2>
+											{CATEGORY_BLURBS[c.slug] && <p class="!m-0 max-w-md text-[16px] text-muted-foreground">{CATEGORY_BLURBS[c.slug]}</p>}
+										</a>
+										{latest && (
+											<a href={`/blog/${latest.id}/`} class="group flex items-center gap-4 !text-foreground no-underline md:justify-self-end">
+												<div class="aspect-[4/3] w-28 shrink-0 overflow-hidden bg-muted">
+													{latest.data.heroImage && <PostImage src={latest.data.heroImage} alt="" width={300} class="h-full w-full !rounded-none object-cover" />}
+												</div>
+												<div class="min-w-0 max-w-xs">
+													<p class="label !mb-1 !text-[11px] text-primary">Latest · {formatDate(latest.data.pubDate)}</p>
+													<p class="!m-0 font-display text-[20px] font-semibold uppercase leading-tight transition-colors group-hover:text-primary">{latest.data.title}</p>
+												</div>
+											</a>
+										)}
+									</div>
+								</li>
+							);
+						})}
 					</ul>
 				) : (
 					<p class="text-[15px] text-muted-foreground">No categories yet.</p>
 				)
 			}
 		</main>
-
 		<Footer />
-
-		<style>
-			main.categories-page {
-				width: 100%;
-				padding-top: 2.5rem;
-				padding-bottom: 4rem;
-			}
-		</style>
 	</body>
 </html>

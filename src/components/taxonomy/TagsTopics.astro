@@ -1,0 +1,51 @@
+---
+// Tags index design C, "Topic cards": each tag as a small card showing its newest post,
+// so the page doubles as a reading list. Most-used tags first.
+import PostImage from '../PostImage.astro';
+import { formatDate, sortByDate } from '../../lib/posts';
+import type { Term } from '../../lib/taxonomy';
+
+interface Props {
+	terms: Term[];
+	base: string;
+	prefix?: string;
+}
+const { terms, base, prefix = '' } = Astro.props;
+---
+
+<ul class="!m-0 grid gap-px border border-border bg-border !p-0 sm:grid-cols-2 lg:grid-cols-3" role="list">
+	{
+		terms.map((t) => {
+			const latest = sortByDate(t.posts)[0];
+			return (
+				<li class="list-none bg-background">
+					<div class="flex h-full flex-col p-6">
+						<div class="mb-4 flex items-baseline justify-between gap-3">
+							<a href={`${base}${t.slug}/`} class="font-display text-[26px] font-semibold uppercase !leading-none tracking-[-0.3px] !text-foreground no-underline hover:!text-primary">
+								{prefix}
+								{t.label}
+							</a>
+							<span class="label shrink-0 !text-[11px] text-muted-foreground">
+								{t.posts.length} {t.posts.length === 1 ? 'post' : 'posts'}
+							</span>
+						</div>
+						{latest && (
+							<a href={`/blog/${latest.id}/`} class="group mt-auto flex items-center gap-3 border-t border-border pt-4 !text-foreground no-underline">
+								<div class="h-12 w-16 shrink-0 overflow-hidden bg-muted">
+									{latest.data.heroImage && <PostImage src={latest.data.heroImage} alt="" width={160} class="h-full w-full !rounded-none object-cover" />}
+								</div>
+								<div class="min-w-0">
+									<p class="label !mb-0.5 !text-[10px] text-muted-foreground">Latest · {formatDate(latest.data.pubDate)}</p>
+									<p class="!m-0 truncate text-[14px] transition-colors group-hover:text-primary">{latest.data.title}</p>
+								</div>
+							</a>
+						)}
+						<a href={`${base}${t.slug}/`} class="label mt-4 !text-[11px] !text-primary no-underline hover:underline">
+							All posts →
+						</a>
+					</div>
+				</li>
+			);
+		})
+	}
+</ul>

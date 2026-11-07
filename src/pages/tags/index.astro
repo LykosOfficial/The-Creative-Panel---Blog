@@ -1,10 +1,12 @@
 ---
-// All tags (/tags/), most-used first, with how many posts each has.
+// All tags (/tags/): big title, then every tag as a word with its post count in a bubble.
+// Sort tabs switch between A–Z, Z–A, most posts and fewest posts.
 import { getCollection } from 'astro:content';
 import BaseHead from '../../components/BaseHead.astro';
 import Footer from '../../components/Footer.astro';
 import Header from '../../components/Header.astro';
-import LightPageHeader from '../../components/LightPageHeader.astro';
+import TagsCloud from '../../components/taxonomy/TagsCloud.astro';
+import TermHeader from '../../components/taxonomy/TermHeader.astro';
 import { SITE_TITLE } from '../../consts';
 import { abs, breadcrumbs } from '../../lib/seo';
 import { MIN_POSTS_TO_INDEX, tagIndex } from '../../lib/taxonomy';
@@ -30,38 +32,21 @@ const schema = [
 	</head>
 	<body>
 		<Header />
-
-		<LightPageHeader label="Browse" title="Tags" width="narrow" />
-
-		<main class="tags-page page-narrow">
-			{
-				tags.length > 0 ? (
-					<ul class="!m-0 grid gap-px border border-border bg-border !p-0 sm:grid-cols-2" role="list">
-						{tags.map((t) => (
-							<li class="list-none bg-background">
-								<a href={`/tags/${t.slug}/`} class="group flex items-center justify-between gap-4 p-4 !text-foreground no-underline transition-colors hover:bg-muted sm:p-5">
-									<span class="font-display text-[17px] font-semibold uppercase tracking-[-0.1px] transition-colors group-hover:text-primary">#{t.label}</span>
-									<span class="shrink-0 text-[12px] uppercase tracking-[0.08em] text-muted-foreground">
-										{t.posts.length} {t.posts.length === 1 ? 'post' : 'posts'}
-									</span>
-								</a>
-							</li>
-						))}
-					</ul>
-				) : (
-					<p class="text-[15px] text-muted-foreground">No tags yet.</p>
-				)
-			}
+		<TermHeader
+			label="Tags"
+			kicker="Browse by topic"
+			description="Every topic on The Creative Panel. Pick one to read everything filed under it."
+			count={tags.length}
+			meta={`${tags.length} ${tags.length === 1 ? 'tag' : 'tags'}`}
+			siblings={[
+				{ label: 'Tags', href: '/tags/', current: true },
+				{ label: 'Categories', href: '/categories/' },
+				{ label: 'Archive', href: '/blog/' },
+			]}
+		/>
+		<main class="page-wide py-12">
+			{tags.length > 0 ? <TagsCloud terms={tags} base="/tags/" prefix="#" /> : <p class="text-[15px] text-muted-foreground">No tags yet.</p>}
 		</main>
-
 		<Footer />
-
-		<style>
-			main.tags-page {
-				width: 100%;
-				padding-top: 2.5rem;
-				padding-bottom: 4rem;
-			}
-		</style>
 	</body>
 </html>

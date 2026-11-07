@@ -1,0 +1,143 @@
+---
+// Tags index, "Word cloud": every tag in one flowing block, A–Z.
+//   look="even"  (default): every word the same size, post count in a bubble (1,000+ → "1K")
+//   look="sized": bigger words for tags with more posts (the original lab version B)
+import type { Term } from '../../lib/taxonomy';
+
+interface Props {
+	terms: Term[];
+	base: string;
+	prefix?: string;
+	look?: 'sized' | 'even';
+}
+const { terms, base, prefix = '', look = 'even' } = Astro.props;
+/** 7 → "7", 1,234 → "1.2K", 15,000 → "15K" (shortened once a count reaches 4 digits) */
+const short = (n: number) => (n < 1000 ? String(n) : new Intl.NumberFormat('en', { notation: 'compact', maximumFractionDigits: 1 }).format(n));
+const max = Math.max(1, ...terms.map((t) => t.posts.length));
+// 5 sizes, from 18px (one post) to 64px (the most-used tag)
+const size = (n: number) => [18, 26, 36, 48, 64][Math.min(4, Math.floor(((n - 1) / Math.max(1, max - 1)) * 4.999))];
+const sorted = [...terms].sort((a, b) => a.label.localeCompare(b.label));
+const href = (t: Term) => `${base}${t.slug}/`;
+const posts = (n: number) => `${n} ${n === 1 ? 'post' : 'posts'}`;
+---
+
+{
+	look === 'sized' ? (
+		<>
+			<p class="!mb-8 max-w-2xl text-[16px] leading-relaxed text-muted-foreground">Bigger means more posts. Pick a topic to read everything filed under it.</p>
+			<div class="flex flex-wrap items-baseline gap-x-6 gap-y-3 leading-none">
+				{sorted.map((t) => (
+					<a
+						href={href(t)}
+						class:list={[
+							'font-display font-semibold uppercase tracking-[-0.3px] no-underline transition-colors hover:!text-primary',
+							t.posts.length === max ? '!text-brand-gold' : '!text-foreground',
+						]}
+						style={`font-size:${size(t.posts.length)}px`}
+					>
+						{prefix}
+						{t.label}
+						<sup class="ml-0.5 align-super font-sans text-[11px] font-normal tracking-normal text-muted-foreground">{t.posts.length}</sup>
+					</a>
+				))}
+			</div>
+		</>
+	) : (
+		<div data-tag-index>
+			<!-- Sort tabs: A–Z is the order on the page (works without JavaScript); the others re-sort in place -->
+			<div role="group" aria-label="Sort tags" class="mb-8 flex flex-wrap items-center gap-1.5">
+				<span class="label mr-2 !text-[11px] text-muted-foreground">Sort</span>
+				<button type="button" class="sort-tab" data-sort="az" aria-pressed="true">A–Z</button>
+				<button type="button" class="sort-tab" data-sort="za" aria-pressed="false">Z–A</button>
+				<button type="button" class="sort-tab" data-sort="most" aria-pressed="false">Most posts</button>
+				<button type="button" class="sort-tab" data-sort="fewest" aria-pressed="false">Fewest posts</button>
+			</div>
+			<div class="flex flex-wrap items-center gap-x-6 gap-y-4" data-tag-list>
+			{sorted.map((t) => (
+				<a href={href(t)} class="cloud-word group inline-flex items-center gap-1.5 no-underline" data-label={t.label.toLowerCase()} data-count={t.posts.length} aria-label={`${t.label}, ${posts(t.posts.length)}`}>
+					<span class="font-display text-[20px] font-semibold uppercase leading-none tracking-[-0.1px] text-foreground transition-colors group-hover:text-primary">
+						{prefix}
+						{t.label}
+					</span>
+					<span class="cloud-count" title={posts(t.posts.length)} aria-hidden="true">
+						{short(t.posts.length)}
+					</span>
+				</a>
+			))}
+			</div>
+		</div>
+	)
+}
+
+<script>
+	// Sort tabs: re-order the tags A–Z, Z–A, most posts first, or fewest posts first
+	document.querySelectorAll<HTMLElement>('[data-tag-index]').forEach((index) => {
+		const list = index.querySelector<HTMLElement>('[data-tag-list]')!;
+		const tabs = index.querySelectorAll<HTMLButtonElement>('[data-sort]');
+		const words = [...list.querySelectorAll<HTMLElement>('[data-label]')];
+		const count = (el: HTMLElement) => Number(el.dataset.count);
+		const byName = (a: HTMLElement, b: HTMLElement) => a.dataset.label!.localeCompare(b.dataset.label!);
+		const orders: Record<string, (a: HTMLElement, b: HTMLElement) => number> = {
+			az: byName,
+			za: (a, b) => byName(b, a),
+			most: (a, b) => count(b) - count(a) || byName(a, b),
+			fewest: (a, b) => count(a) - count(b) || byName(a, b),
+		};
+		tabs.forEach((tab) =>
+			tab.addEventListener('click', () => {
+				tabs.forEach((t) => t.setAttribute('aria-pressed', String(t === tab)));
+				list.append(...[...words].sort(orders[tab.dataset.sort!]));
+			}),
+		);
+	});
+</script>
+
+<style>
+	.sort-tab {
+		font-family: var(--font-display);
+		font-size: 12px;
+		font-weight: 600;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+		padding: 0.4rem 0.8rem;
+		border: 1px solid var(--border);
+		background: var(--card);
+		color: var(--muted-foreground);
+		cursor: pointer;
+		transition: all 0.15s;
+	}
+	.sort-tab:hover {
+		border-color: var(--primary);
+		color: var(--primary);
+	}
+	.sort-tab[aria-pressed='true'] {
+		background: var(--foreground);
+		border-color: var(--foreground);
+		color: var(--background);
+	}
+	.cloud-count {
+		display: inline-flex;
+		min-width: 1.35rem;
+		height: 1.35rem;
+		align-items: center;
+		justify-content: center;
+		padding: 0 0.4rem;
+		border-radius: 999px;
+		background: var(--color-brand-ink);
+		color: #fff;
+		font-family: var(--font-display);
+		font-size: 11px;
+		font-weight: 600;
+		letter-spacing: 0.02em;
+		font-variant-numeric: tabular-nums;
+		transition: background 0.15s;
+	}
+	:global(.dark) .cloud-count {
+		background: var(--muted);
+		color: var(--foreground);
+	}
+	.cloud-word:hover .cloud-count {
+		background: var(--primary);
+		color: #fff;
+	}
+</style>

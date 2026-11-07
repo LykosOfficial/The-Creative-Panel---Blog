@@ -1,0 +1,74 @@
+---
+// A full category or tag page: big title (TermHeader) over the Section front layout,
+// 12 posts a page. Used by /categories/<slug>/ and /tags/<slug>/ (and their /page/N/).
+import BaseHead from '../BaseHead.astro';
+import Footer from '../Footer.astro';
+import Header from '../Header.astro';
+import SectionFront from './SectionFront.astro';
+import { SITE_TITLE } from '../../consts';
+import type { Page } from '../../lib/pagination';
+import type { Post } from '../../lib/posts';
+import { abs, breadcrumbs } from '../../lib/seo';
+import { MIN_POSTS_TO_INDEX, type Term } from '../../lib/taxonomy';
+
+interface Props {
+	kind: 'category' | 'tag';
+	term: Term;
+	page: Page<Post>;
+	description?: string;
+	siblings: { label: string; href: string; current?: boolean }[];
+}
+const { kind, term, page, description, siblings } = Astro.props;
+const isTag = kind === 'tag';
+const label = isTag ? `#${term.label}` : term.label;
+const count = term.posts.length;
+const noun = count === 1 ? 'post' : 'posts';
+const index = isTag ? { name: 'Tags', path: '/tags/' } : { name: 'Categories', path: '/categories/' };
+const pageSuffix = page.current > 1 ? ` (page ${page.current})` : '';
+
+const schema = [
+	{
+		'@type': 'CollectionPage',
+		name: `${label}${pageSuffix}`,
+		url: abs(Astro.url.pathname),
+		isPartOf: { '@id': abs('/#website') },
+		mainEntity: {
+			'@type': 'ItemList',
+			itemListElement: page.items.map((p, i) => ({ '@type': 'ListItem', position: i + 1, url: abs(`/blog/${p.id}/`), name: p.data.title })),
+		},
+	},
+	breadcrumbs([index, { name: term.label, path: page.base }]),
+];
+const seoDescription =
+	description && page.current === 1
+		? `${description} ${count} ${noun} by Joel Green on ${SITE_TITLE}.`
+		: `${count} ${noun} by Joel Green ${isTag ? 'tagged' : 'in'} “${term.label}” on ${SITE_TITLE}${pageSuffix}: essays, chapters and writing notes, newest first.`;
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<BaseHead
+			title={`${label}${pageSuffix} — ${SITE_TITLE}`}
+			description={seoDescription}
+			noindex={count < MIN_POSTS_TO_INDEX}
+			schema={schema}
+		/>
+		{page.current > 1 && <link rel="prev" href={page.current === 2 ? page.base : `${page.base}page/${page.current - 1}/`} />}
+		{page.current < page.total && <link rel="next" href={`${page.base}page/${page.current + 1}/`} />}
+	</head>
+	<body>
+		<Header />
+		<SectionFront
+			header="big"
+			label={label}
+			kicker={isTag ? 'Tag' : 'Category'}
+			description={description}
+			count={count}
+			siblings={siblings}
+			posts={page.items}
+			page={{ current: page.current, total: page.total, base: page.base }}
+		/>
+		<Footer />
+	</body>
+</html>

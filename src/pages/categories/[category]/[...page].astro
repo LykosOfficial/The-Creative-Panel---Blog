@@ -1,0 +1,27 @@
+---
+// /categories/<slug>/ and /categories/<slug>/page/2/ …: every post in a category, 12 a page.
+import { getCollection } from 'astro:content';
+import TermPage from '../../../components/taxonomy/TermPage.astro';
+import { CATEGORY_BLURBS } from '../../../data/categories';
+import { paginate } from '../../../lib/pagination';
+import { sortByDate } from '../../../lib/posts';
+import { categoryIndex } from '../../../lib/taxonomy';
+
+export async function getStaticPaths() {
+	const categories = categoryIndex(await getCollection('blog'));
+	return categories.flatMap((term) =>
+		paginate(sortByDate(term.posts), `/categories/${term.slug}/`).map((page) => ({
+			params: { category: term.slug, page: page.current === 1 ? undefined : `page/${page.current}` },
+			props: {
+				term,
+				page,
+				siblings: categories.map((c) => ({ label: c.label, href: `/categories/${c.slug}/`, current: c.slug === term.slug })),
+			},
+		})),
+	);
+}
+
+const { term, page, siblings } = Astro.props;
+---
+
+<TermPage kind="category" term={term} page={page} siblings={siblings} description={CATEGORY_BLURBS[term.slug]} />

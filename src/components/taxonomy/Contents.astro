@@ -1,0 +1,78 @@
+---
+// Category design C, "Contents page" (like a literary journal's table of contents):
+// text first. Title and description side by side, then numbered entries
+// in two columns, with only a small image on the first few.
+import PostImage from '../PostImage.astro';
+import Pagination from '../Pagination.astro';
+import { formatDate, readingTime, type Post } from '../../lib/posts';
+import { PER_PAGE } from '../../lib/pagination';
+
+interface Props {
+	label: string;
+	kicker: string;
+	description?: string;
+	count: number;
+	siblings?: { label: string; href: string; current?: boolean }[];
+	posts: Post[];
+	page: { current: number; total: number; base: string };
+}
+const { label, kicker, description, count, siblings = [], posts, page } = Astro.props;
+const offset = (page.current - 1) * PER_PAGE;
+---
+
+<section class="border-b border-border">
+	<div class="page-wide grid gap-6 pb-10 pt-12 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] md:items-end md:pt-16">
+		<div>
+			<p class="label !mb-3 !text-[12px] text-primary">{kicker}</p>
+			<h1 class="!m-0 font-display !text-[56px] font-semibold uppercase !leading-[0.95] tracking-[-1px] md:!text-[72px]">{label}</h1>
+		</div>
+		<div class="md:border-l md:border-border md:pl-8">
+			{description && <p class="!mb-3 text-[18px] leading-relaxed">{description}</p>}
+			<p class="label !m-0 !text-[12px] text-muted-foreground">
+				{count} {count === 1 ? 'entry' : 'entries'}
+				{siblings.length > 0 && (
+					<>
+						{' · Also: '}
+						{siblings
+							.filter((s) => !s.current)
+							.map((s, i) => (
+								<>
+									{i > 0 && ', '}
+									<a href={s.href} class="!text-muted-foreground underline hover:!text-primary">
+										{s.label}
+									</a>
+								</>
+							))}
+					</>
+				)}
+			</p>
+		</div>
+	</div>
+</section>
+
+<main class="page-wide py-10">
+	<ol class="!m-0 grid gap-x-12 !p-0 md:grid-cols-2" role="list">
+		{
+			posts.map((p, i) => (
+				<li class="list-none border-b border-border">
+					<a href={`/blog/${p.id}/`} class="group flex gap-5 py-6 !text-foreground no-underline">
+						<span class="w-10 shrink-0 font-display text-[28px] font-semibold leading-none text-brand-gold">{String(offset + i + 1).padStart(2, '0')}</span>
+						<div class="min-w-0 flex-1">
+							<h2 class="!mb-1.5 font-display !text-[22px] font-semibold uppercase !leading-[1.05] transition-colors group-hover:text-primary">{p.data.title}</h2>
+							<p class="!mb-1.5 text-[14px] leading-relaxed text-muted-foreground">{p.data.description}</p>
+							<p class="label !m-0 !text-[11px] text-muted-foreground">
+								{formatDate(p.data.pubDate)} · {readingTime(p)} min read
+							</p>
+						</div>
+						{i < 2 && page.current === 1 && p.data.heroImage && (
+							<div class="hidden aspect-square w-24 shrink-0 overflow-hidden bg-muted sm:block">
+								<PostImage src={p.data.heroImage} alt="" width={200} class="h-full w-full !rounded-none object-cover" />
+							</div>
+						)}
+					</a>
+				</li>
+			))
+		}
+	</ol>
+	<Pagination {...page} />
+</main>

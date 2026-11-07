@@ -51,3 +51,14 @@ function group(posts: Post[], termsOf: (p: Post) => string[]): Term[] {
 
 export const tagIndex = (posts: Post[]) => group(posts, (p) => p.data.tags);
 export const categoryIndex = (posts: Post[]) => group(posts, (p) => (p.data.category ? [p.data.category] : []));
+
+/** Up to 8 other tags that appear on the same posts, most shared first */
+export function relatedTags(term: Term, all: Term[]) {
+	const shared = new Map<string, number>();
+	for (const post of term.posts)
+		for (const slug of new Set(post.data.tags.map(termSlug))) if (slug && slug !== term.slug) shared.set(slug, (shared.get(slug) ?? 0) + 1);
+	return all
+		.filter((t) => shared.has(t.slug))
+		.sort((a, b) => shared.get(b.slug)! - shared.get(a.slug)! || b.posts.length - a.posts.length)
+		.slice(0, 8);
+}

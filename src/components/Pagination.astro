@@ -1,0 +1,100 @@
+---
+// ← Newer · 1 2 3 … 8 · Older →   (shown only when there's more than one page)
+// Page 1 is the list's own address; later pages are …/page/2/, …/page/3/.
+import { pageUrl, pageWindow } from '../lib/pagination';
+
+interface Props {
+	current: number;
+	total: number;
+	/** Address of page 1, with trailing slash, e.g. "/categories/writing/" */
+	base: string;
+}
+const { current, total, base } = Astro.props;
+const prev = current > 1 ? pageUrl(base, current - 1) : null;
+const next = current < total ? pageUrl(base, current + 1) : null;
+---
+
+{
+	total > 1 && (
+		<nav aria-label="Pages" class="pager mt-12 flex flex-wrap items-center justify-center gap-1.5 border-t border-border pt-8">
+			{prev ? (
+				<a href={prev} rel="prev" class="pager-step">
+					← Newer
+				</a>
+			) : (
+				<span class="pager-step is-off" aria-hidden="true">
+					← Newer
+				</span>
+			)}
+			{pageWindow(current, total).map((n) =>
+				n === null ? (
+					<span class="px-1 text-muted-foreground" aria-hidden="true">
+						…
+					</span>
+				) : n === current ? (
+					<span class="pager-num is-current" aria-current="page">
+						{n}
+					</span>
+				) : (
+					<a href={pageUrl(base, n)} class="pager-num" aria-label={`Page ${n}`}>
+						{n}
+					</a>
+				),
+			)}
+			{next ? (
+				<a href={next} rel="next" class="pager-step">
+					Older →
+				</a>
+			) : (
+				<span class="pager-step is-off" aria-hidden="true">
+					Older →
+				</span>
+			)}
+		</nav>
+	)
+}
+
+<style>
+	.pager-num,
+	.pager-step {
+		font-family: var(--font-display);
+		font-size: 13px;
+		font-weight: 600;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+		text-decoration: none;
+		color: var(--foreground);
+	}
+	.pager-num {
+		display: inline-flex;
+		min-width: 2.25rem;
+		height: 2.25rem;
+		align-items: center;
+		justify-content: center;
+		border: 1px solid var(--border);
+		transition: all 0.15s;
+	}
+	.pager-num:hover {
+		border-color: var(--primary);
+		color: var(--primary);
+	}
+	.pager-num.is-current {
+		background: var(--color-brand-ink);
+		border-color: var(--color-brand-ink);
+		color: #fff;
+	}
+	:global(.dark) .pager-num.is-current {
+		background: var(--primary);
+		border-color: var(--primary);
+	}
+	.pager-step {
+		padding: 0 0.75rem;
+	}
+	.pager-step:hover {
+		color: var(--primary);
+	}
+	.pager-step.is-off {
+		color: var(--muted-foreground);
+		opacity: 0.5;
+	}
+</style>

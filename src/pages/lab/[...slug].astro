@@ -1,0 +1,133 @@
+---
+// Design lab: try layouts with real + sample posts before choosing one.
+// Only built when PUBLIC_LAB=true (local preview); the live site never has these pages.
+//   PUBLIC_LAB=true astro build && astro preview  →  http://localhost:4331/lab/
+import { getCollection } from 'astro:content';
+import BaseHead from '../../components/BaseHead.astro';
+import Footer from '../../components/Footer.astro';
+import Header from '../../components/Header.astro';
+import Contents from '../../components/taxonomy/Contents.astro';
+import SectionFront from '../../components/taxonomy/SectionFront.astro';
+import Stream from '../../components/taxonomy/Stream.astro';
+import TagsAZ from '../../components/taxonomy/TagsAZ.astro';
+import TagsCloud from '../../components/taxonomy/TagsCloud.astro';
+import TagsTopics from '../../components/taxonomy/TagsTopics.astro';
+import { CATEGORY_BLURBS, labPosts } from '../../lib/labSamples';
+import { paginate } from '../../lib/pagination';
+import { DESIGNS, type Design } from '../../lib/labDesigns';
+import { categoryIndex, tagIndex } from '../../lib/taxonomy';
+
+
+export async function getStaticPaths() {
+	if (process.env.PUBLIC_LAB !== 'true' && import.meta.env.PUBLIC_LAB !== 'true') return [];
+	const paths: { params: { slug: string | undefined }; props: { design?: Design; page: number } }[] = [{ params: { slug: undefined }, props: { page: 1 } }];
+	for (const design of Object.keys(DESIGNS) as Design[]) {
+		paths.push({ params: { slug: design }, props: { design, page: 1 } });
+		if (design.startsWith('category')) paths.push({ params: { slug: `${design}/page/2` }, props: { design, page: 2 } });
+	}
+	return paths;
+}
+
+const { design, page } = Astro.props as { design?: Design; page: number };
+const posts = labPosts(await getCollection('blog'));
+const tags = tagIndex(posts);
+const categories = categoryIndex(posts);
+// Demo only: a tag with 1,234 posts, to show the shortened count bubble ("1.2K")
+const tagsWithDemo = [...tags, { slug: 'demo', label: 'Big Topic (demo)', posts: Array(1234).fill(posts[0]) }];
+
+// The category pages show every sample post as if it were one section, so there's enough for 2 pages
+const base = design ? `/lab/${design}/` : '/lab/';
+const pages = paginate(posts, base);
+const current = pages[page - 1];
+const siblings = [
+	{ label: 'Writing', href: base, current: true },
+	...categories.filter((c) => c.slug !== 'writing').map((c) => ({ label: c.label, href: '#' })),
+];
+const categoryProps = {
+	label: 'Writing',
+	kicker: 'Category',
+	description: CATEGORY_BLURBS.writing,
+	count: posts.length,
+	siblings,
+	posts: current.items,
+	page: { current: current.current, total: current.total, base },
+};
+const title = design ? `${DESIGNS[design].group}: ${DESIGNS[design].name}` : 'Design lab';
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<BaseHead title={`${title} — Lab`} description="Layout experiments (local only)." noindex />
+	</head>
+	<body>
+		<!-- Lab switcher -->
+		<div class="sticky top-0 z-50 flex flex-wrap items-center gap-x-4 gap-y-1 bg-brand-gold px-4 py-2 text-[12px] font-semibold text-black">
+			<a href="/lab/" class="!text-black no-underline">LAB</a>
+			{
+				(Object.keys(DESIGNS) as Design[]).map((d) => (
+					<a href={`/lab/${d}/`} class:list={['!text-black', d === design ? 'underline' : 'no-underline opacity-70 hover:opacity-100']}>
+						{d.replace('category-', 'Category ').replace('tags-', 'Tags ').replace('mix', '★').toUpperCase()}
+					</a>
+				))
+			}
+			{design && <span class="ml-auto opacity-80">{DESIGNS[design].note}</span>}
+		</div>
+
+		<Header />
+
+		{
+			!design && (
+				<main class="page-narrow py-14">
+					<h1 class="font-display !text-[48px] font-semibold uppercase">Design lab</h1>
+					<p class="text-muted-foreground">
+						Real posts plus {posts.length - (await getCollection('blog')).length} made-up samples, so each layout has enough to show. Only on your computer.
+					</p>
+					{['Category page', 'Tags index'].map((g) => (
+						<section class="mt-10">
+							<h2 class="label !mb-4 !text-[13px] text-primary">{g}</h2>
+							<ul class="!m-0 border border-border !p-0" role="list">
+								{(Object.keys(DESIGNS) as Design[])
+									.filter((d) => DESIGNS[d].group === g)
+									.map((d) => (
+										<li class="list-none border-b border-border last:border-b-0">
+											<a href={`/lab/${d}/`} class="flex items-baseline justify-between gap-4 p-5 !text-foreground no-underline hover:bg-muted">
+												<span class="font-display text-[22px] font-semibold uppercase">{DESIGNS[d].name}</span>
+												<span class="text-[14px] text-muted-foreground">{DESIGNS[d].note}</span>
+											</a>
+										</li>
+									))}
+							</ul>
+						</section>
+					))}
+				</main>
+			)
+		}
+
+		{design === 'category-mix' && <SectionFront {...categoryProps} header="big" />}
+		{design === 'category-a' && <SectionFront {...categoryProps} />}
+		{design === 'category-b' && <Stream {...categoryProps} />}
+		{design === 'category-c' && <Contents {...categoryProps} />}
+
+		{
+			design?.startsWith('tags') && (
+				<>
+					<section class="border-b border-border">
+						<div class="page-wide pb-10 pt-12 md:pt-16">
+							<p class="label !mb-3 !text-[12px] text-primary">Browse by topic · {tags.length} tags</p>
+							<h1 class="!m-0 font-display !text-[56px] font-semibold uppercase !leading-[0.95] tracking-[-1px] md:!text-[72px]">Tags</h1>
+						</div>
+					</section>
+					<main class="page-wide py-10">
+						{design === 'tags-a' && <TagsAZ terms={tags} base="/tags/" prefix="#" />}
+						{design === 'tags-mix' && <TagsCloud terms={tagsWithDemo} base="/tags/" prefix="#" look="even" />}
+						{design === 'tags-b' && <TagsCloud terms={tags} base="/tags/" prefix="#" look="sized" />}
+						{design === 'tags-c' && <TagsTopics terms={tags} base="/tags/" prefix="#" />}
+					</main>
+				</>
+			)
+		}
+
+		<Footer />
+	</body>
+</html>

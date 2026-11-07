@@ -3,10 +3,13 @@ import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
 import HeaderLink from './HeaderLink.astro';
 
 // Nav items (prototype order).
-// Full links show from 1180px (logo + tagline + 6 links need ~1,125px); below that, the ☰ menu.
+// Full links show from 1180px; below that, the ☰ menu. With 8 links the tagline only fits from 1400px,
+// so between 1180 and 1399px the logo is just "The Creative Panel."
 const links = [
 	{ href: '/', label: 'Latest' },
 	{ href: '/blog', label: 'Archive' },
+	{ href: '/categories', label: 'Categories' },
+	{ href: '/tags', label: 'Tags' },
 	{ href: '/trending', label: 'Trending' },
 	{ href: '/books', label: 'Books' },
 	{ href: '/sites', label: 'Sites' },
@@ -20,9 +23,9 @@ const links = [
 		<!-- Brand logo: same font/style as joelgreenauthor.com (Geist, bold, uppercase, tight; gold title, teal accents) -->
 		<a href="/" class="brand flex min-w-0 items-baseline whitespace-nowrap font-logo font-bold uppercase leading-none tracking-tight">
 			<span class="text-brand-gold text-[22px] sm:text-[26px]">{SITE_TITLE}</span>
-			<!-- Tagline is hidden on phones: "The Creative Panel" only -->
-			<span class="hidden sm:inline text-brand-logo-accent mx-2">—</span>
-			<span class="hidden sm:inline text-[15px]">{SITE_DESCRIPTION}</span>
+			<!-- Tagline is hidden on phones, and on 1180–1399px screens where the 8 nav links need the room: "The Creative Panel" only -->
+			<span class="hidden sm:inline min-[1180px]:hidden min-[1400px]:inline text-brand-logo-accent mx-2">—</span>
+			<span class="hidden sm:inline min-[1180px]:hidden min-[1400px]:inline text-[15px]">{SITE_DESCRIPTION}</span>
 			<span class="text-brand-logo-accent text-[22px] sm:text-[26px]">.</span>
 		</a>
 
