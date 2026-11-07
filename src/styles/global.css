@@ -342,3 +342,25 @@
   .legal-body th { text-align: left; font-family: var(--font-display); font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted-foreground); }
   .legal-body th, .legal-body td { border-bottom: 1px solid var(--border); padding: 0.65rem 1rem 0.65rem 0; vertical-align: top; }
 }
+
+/* Tag and category chips: homepage, tag/category pages, post headers */
+@layer components {
+  .tag-chip {
+    display: inline-block;
+    font-family: var(--font-display);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 10px;
+    padding: 0.35rem 0.75rem;
+    line-height: 1.5;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--muted-foreground) !important;
+    text-decoration: none !important;
+    transition: all 0.15s;
+  }
+  .tag-chip:hover {
+    border-color: var(--primary);
+    color: var(--primary) !important;
+  }
+}

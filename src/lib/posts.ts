@@ -15,10 +15,6 @@ export function readingTime(post: Post) {
 }
 
 /** Every tag used across posts, alphabetical. */
-export function allTags(posts: Post[]) {
-	return [...new Set(posts.flatMap((p) => p.data.tags))].sort();
-}
-
 /** Search snippet: the post's description, or its opening text trimmed to ~155 characters. */
 export function seoDescription(post: Post) {
 	if (post.data.description) return post.data.description;

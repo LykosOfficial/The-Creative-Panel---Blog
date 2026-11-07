@@ -29,7 +29,9 @@ export default defineConfig({
 
   integrations: [mdx(), sitemap({
     // Legal pages are noindex (see LegalPage.astro), so they stay out of the sitemap too
-    filter: (page) => !/^\/(privacy|terms|cookies|disclaimer)\/?$/.test(new URL(page).pathname),
+    // Tag and category pages are left out too: most are still near-empty (noindex until they have 3+ posts);
+    // Google still finds the full ones through the links on posts.
+    filter: (page) => !/^\/(privacy|terms|cookies|disclaimer)\/?$|^\/(tags|categories)\//.test(new URL(page).pathname),
   }), react(), contentRefresh()],
 
   // Astro Fonts API: downloads these from Fontsource at build time and

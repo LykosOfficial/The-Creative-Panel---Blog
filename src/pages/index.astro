@@ -19,7 +19,8 @@ import PostList from '../components/home/PostList.astro';
 import PostRow from '../components/home/PostRow.astro';
 import SectionTitle from '../components/home/SectionTitle.astro';
 import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
-import { allTags, sortByDate } from '../lib/posts';
+import { sortByDate } from '../lib/posts';
+import { tagIndex } from '../lib/taxonomy';
 import { abs } from '../lib/seo';
 import { getAllStats } from '../lib/stats';
 
@@ -29,7 +30,7 @@ const books = (await getCollection('books')).sort((a, b) => a.data.sortOrder - b
 const heroBook = books.find((b) => b.data.featured) ?? books[0];
 const featured = posts.filter((p) => p.data.featured).slice(0, 2);
 const latest = posts.filter((p) => !featured.includes(p));
-const tags = allTags(posts);
+const tags = tagIndex(posts);
 
 // Most Liked / You might also like: ranked by API counts; newest first until counts exist.
 const stats = await getAllStats();
@@ -86,17 +87,21 @@ const alsoLike = rank('views').filter((p) => !featured.includes(p)).slice(0, 3);
 
 			<!-- Center: tags, featured, latest, most read, most liked / also like -->
 			<div class="order-1 min-w-0 lg:order-2">
-				<!-- Tag filter only once there are tags to filter by -->
-				<div class="tag-filter mb-8 flex flex-wrap gap-1.5" hidden={tags.length === 0}>
-					<button type="button" class="tag-chip active" data-tag="">All</button>
-					{
-						tags.map((t) => (
-							<button type="button" class="tag-chip" data-tag={t}>
-								#{t}
-							</button>
-						))
-					}
-				</div>
+				<!-- Most-used tags (each opens its tag page), capped so the row never takes over the page -->
+				{
+					tags.length > 0 && (
+						<nav aria-label="Tags" class="mb-8 flex flex-wrap items-center gap-1.5">
+							{tags.slice(0, 8).map((t) => (
+								<a href={`/tags/${t.slug}/`} class="tag-chip">
+									#{t.label}
+								</a>
+							))}
+							<a href="/tags/" class="ml-1 font-display text-[11px] font-semibold uppercase tracking-[0.08em] !text-primary no-underline hover:underline">
+								All tags →
+							</a>
+						</nav>
+					)
+				}
 
 				{
 					featured.length > 0 && (
@@ -114,7 +119,6 @@ const alsoLike = rank('views').filter((p) => !featured.includes(p)).slice(0, 3);
 					<ul class="!m-0 !p-0" role="list">
 						{latest.map((post) => <PostRow post={post} />)}
 					</ul>
-					<p class="no-results hidden text-sm text-muted-foreground">No posts with that tag yet.</p>
 					{
 						posts.length === 0 ? (
 							// Before the first post: say so, and point to the newsletter
@@ -154,25 +158,6 @@ const alsoLike = rank('views').filter((p) => !featured.includes(p)).slice(0, 3);
 			// Live like/view counts from the API (hearts, Most Read, Most Liked)
 			import { refreshStats } from '../lib/liveStats';
 			refreshStats();
-
-			// Tag chips: show only "Latest" posts that have the chosen tag.
-			const chips = document.querySelectorAll<HTMLButtonElement>('.tag-chip');
-			const rows = document.querySelectorAll<HTMLElement>('.post-row');
-			const empty = document.querySelector<HTMLElement>('.no-results');
-
-			chips.forEach((chip) =>
-				chip.addEventListener('click', () => {
-					const tag = chip.dataset.tag ?? '';
-					chips.forEach((c) => c.classList.toggle('active', c === chip));
-					let shown = 0;
-					rows.forEach((row) => {
-						const match = !tag || (row.dataset.tags ?? '').split(' ').includes(tag);
-						row.classList.toggle('hidden', !match);
-						if (match) shown++;
-					});
-					empty?.classList.toggle('hidden', shown > 0);
-				}),
-			);
 		</script>
 
 		<style>
@@ -195,28 +180,6 @@ const alsoLike = rank('views').filter((p) => !featured.includes(p)).slice(0, 3);
 					gap: 2.25rem;
 					padding-inline: 2.25rem;
 				}
-			}
-			.tag-chip {
-				font-family: var(--font-display);
-				text-transform: uppercase;
-				letter-spacing: 0.08em;
-				font-size: 10px; /* prototype: 10px, ~29px tall */
-				padding: 0.35rem 0.75rem;
-				line-height: 1.5;
-				border: 1px solid var(--border);
-				background: var(--card);
-				color: var(--muted-foreground);
-				cursor: pointer;
-				transition: all 0.15s;
-			}
-			.tag-chip:hover {
-				border-color: var(--primary);
-				color: var(--primary);
-			}
-			.tag-chip.active {
-				background: var(--primary);
-				border-color: var(--primary);
-				color: var(--primary-foreground);
 			}
 		</style>
 	</body>

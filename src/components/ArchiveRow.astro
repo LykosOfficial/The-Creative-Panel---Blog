@@ -1,0 +1,40 @@
+---
+// One post in a bordered list (Archive and tag pages): thumbnail, tags, title, excerpt, date.
+import PostImage from './PostImage.astro';
+import { formatDate, type Post } from '../lib/posts';
+
+interface Props {
+	post: Post;
+	/** Text the Archive's live search matches against */
+	search?: string;
+}
+const { post, search } = Astro.props;
+---
+
+<li class="archive-row list-none border-b border-border last:border-b-0" data-search={search}>
+	<a href={`/blog/${post.id}/`} class="group flex items-center gap-5 p-4 !text-foreground no-underline transition-colors hover:bg-muted sm:p-5">
+		{
+			post.data.heroImage && (
+				<PostImage
+					src={post.data.heroImage}
+					alt=""
+					width={300}
+					class="h-[72px] w-24 shrink-0 !rounded-none object-cover grayscale transition duration-300 group-hover:grayscale-0 sm:h-24 sm:w-32"
+				/>
+			)
+		}
+		<div class="min-w-0 flex-1">
+			<p class="!mb-1 font-display text-[11px] font-bold uppercase tracking-[0.1em] text-primary [word-spacing:0.35em]">
+				{post.data.tags.slice(0, 3).map((t) => `#${t}`).join(' ')}
+			</p>
+			<h2 class="!mb-1.5 font-display !text-[18px] font-semibold uppercase !leading-tight tracking-[-0.1px] transition-colors group-hover:text-primary sm:!text-[19px]">
+				{post.data.title}
+			</h2>
+			<p class="!mb-1.5 hidden text-[13px] leading-relaxed text-muted-foreground sm:block">{post.data.description}</p>
+			<p class="!m-0 text-[12px] uppercase tracking-[0.08em] text-muted-foreground/80">{formatDate(post.data.pubDate)}</p>
+		</div>
+		<svg class="hidden h-5 w-5 shrink-0 text-muted-foreground transition group-hover:translate-x-0.5 group-hover:text-primary sm:block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+			<path d="M5 12h14M13 6l6 6-6 6"></path>
+		</svg>
+	</a>
+</li>

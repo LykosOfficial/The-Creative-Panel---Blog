@@ -14,6 +14,7 @@ import Comments from '../components/post/Comments.astro';
 import RelatedCards from '../components/post/RelatedCards.astro';
 import { SITE_TITLE } from '../consts';
 import TimeAgo from '../components/TimeAgo.astro';
+import { categoryUrl, tagUrl, termLabel } from '../lib/taxonomy';
 import { readingTime, seoDescription, wordCount, type Post } from '../lib/posts';
 import { abs, breadcrumbs, person } from '../lib/seo';
 import { getStats } from '../lib/stats';
@@ -109,8 +110,19 @@ const schema = [
 
 				<div class="relative mx-auto w-full max-w-7xl px-4 pb-10 pt-24 sm:px-6">
 					{
-						tags.length > 0 && (
-							<p class="label !mb-4 text-[12px] text-brand-teal-light">{tags.join(' · ')}</p>
+						(category || tags.length > 0) && (
+							<p class="label !mb-4 flex flex-wrap items-center gap-x-2.5 gap-y-1 text-[12px]">
+								{category && (
+									<a href={categoryUrl(category)} class="border border-brand-teal-light/60 px-2 py-0.5 !text-white no-underline transition-colors hover:border-white">
+										{termLabel(category)}
+									</a>
+								)}
+								{tags.map((t) => (
+									<a href={tagUrl(t)} class="!text-brand-teal-light no-underline transition-colors hover:!text-white">
+										#{termLabel(t)}
+									</a>
+								))}
+							</p>
 						)
 					}
 					<h1 class="!mb-5 max-w-3xl font-display !text-4xl font-medium uppercase !leading-[1] tracking-[-0.5px] !text-white sm:!text-5xl md:!text-[56px]">
