@@ -1,17 +1,22 @@
 /**
  * Deploys the blog (a static Astro site) to Cloudflare as a Worker with static assets.
- * No server code: Cloudflare serves the files in ./dist directly.
+ * Cloudflare serves the files in ./dist; worker/index.js only redirects www and http:// to https://joelgreen.studio.
  *   Build + deploy:  pnpm run deploy   (or a push to GitHub: Cloudflare runs `npx wrangler deploy`)
  */
 {
 	"$schema": "./node_modules/wrangler/config-schema.json",
 	"name": "joelgreen-studio",
 	"compatibility_date": "2026-11-01",
+	// Redirects www/http to https://joelgreen.studio, then serves ./dist (see worker/index.js)
+	"main": "worker/index.js",
 	// `wrangler deploy` builds the site first (pulls the latest posts from the API),
 	// so Cloudflare's Git builds work without a separate build command
 	"build": { "command": "pnpm build" },
 	"assets": {
 		"directory": "./dist",
+		"binding": "ASSETS",
+		// The redirect check runs before the files are served
+		"run_worker_first": true,
 		// Unknown URLs get the site's 404 page (dist/404.html) with a real 404 status
 		"not_found_handling": "404-page",
 		// /about and /about/ both work; links use the trailing-slash form
