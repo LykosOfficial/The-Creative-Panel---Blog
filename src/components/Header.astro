@@ -1,20 +1,24 @@
 ---
 import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
 import HeaderLink from './HeaderLink.astro';
+import PanelMenu, { type PanelLink } from './PanelMenu';
 
-// Nav items (prototype order).
-// Full links show from 1180px; below that, the ☰ menu. With 8 links the tagline only fits from 1400px,
-// so between 1180 and 1399px the logo is just "The Creative Panel."
-const links = [
-	{ href: '/', label: 'Latest' },
-	{ href: '/blog', label: 'Archive' },
-	{ href: '/categories', label: 'Categories' },
-	{ href: '/tags', label: 'Tags' },
-	{ href: '/trending', label: 'Trending' },
+// Nav: Latest · The Panel ▾ · Books · Sites · About
+// "The Panel" groups the ways to browse the blog. Full links show from 1180px; below that, the ☰ menu.
+const PANEL_LABEL = 'The Panel';
+const panel: PanelLink[] = [
+	{ href: '/blog', label: 'Archive', description: 'Every post, newest first' },
+	{ href: '/trending', label: 'Trending', description: 'Most read and most liked' },
+	{ href: '/categories', label: 'Categories', description: 'Browse by section' },
+	{ href: '/tags', label: 'Tags', description: 'Browse by topic' },
+];
+const before = [{ href: '/', label: 'Latest' }];
+const after = [
 	{ href: '/books', label: 'Books' },
 	{ href: '/sites', label: 'Sites' },
 	{ href: '/about', label: 'About' },
 ];
+const pathname = Astro.url.pathname.replace(/\/$/, '') || '/';
 ---
 
 <!-- Solid black at the top; turns to frosted glass once you scroll (.scrolled, set below) -->
@@ -23,16 +27,18 @@ const links = [
 		<!-- Brand logo: same font/style as joelgreenauthor.com (Geist, bold, uppercase, tight; gold title, teal accents) -->
 		<a href="/" class="brand flex min-w-0 items-baseline whitespace-nowrap font-logo font-bold uppercase leading-none tracking-tight">
 			<span class="text-brand-gold text-[22px] sm:text-[26px]">{SITE_TITLE}</span>
-			<!-- Tagline is hidden on phones, and on 1180–1399px screens where the 8 nav links need the room: "The Creative Panel" only -->
-			<span class="hidden sm:inline min-[1180px]:hidden min-[1400px]:inline text-brand-logo-accent mx-2">—</span>
-			<span class="hidden sm:inline min-[1180px]:hidden min-[1400px]:inline text-[15px]">{SITE_DESCRIPTION}</span>
+			<!-- Tagline is hidden on phones: "The Creative Panel" only -->
+			<span class="hidden sm:inline text-brand-logo-accent mx-2">—</span>
+			<span class="hidden sm:inline text-[15px]">{SITE_DESCRIPTION}</span>
 			<span class="text-brand-logo-accent text-[22px] sm:text-[26px]">.</span>
 		</a>
 
 		<div class="flex items-center gap-1">
 			<!-- Desktop links -->
 			<div class="nav-links mr-2 hidden items-center min-[1180px]:flex xl:mr-3 xl:gap-1">
-				{links.map((l) => <HeaderLink href={l.href}>{l.label}</HeaderLink>)}
+				{before.map((l) => <HeaderLink href={l.href}>{l.label}</HeaderLink>)}
+				<PanelMenu client:idle label={PANEL_LABEL} links={panel} pathname={pathname} />
+				{after.map((l) => <HeaderLink href={l.href}>{l.label}</HeaderLink>)}
 			</div>
 
 			<button type="button" class="icon-btn inline-flex" data-open-search aria-label="Search">
@@ -61,7 +67,10 @@ const links = [
 	<!-- Phone / tablet / small-laptop menu (below 1180px) -->
 	<div id="mobile-menu" class="mobile-menu hidden border-t border-white/10 min-[1180px]:hidden">
 		<div class="mx-auto flex max-w-7xl flex-col px-4 py-2 sm:px-6">
-			{links.map((l) => <HeaderLink href={l.href}>{l.label}</HeaderLink>)}
+			{before.map((l) => <HeaderLink href={l.href}>{l.label}</HeaderLink>)}
+			<p class="mobile-group !mb-0 mt-3 pb-1 text-[11px] uppercase tracking-[2px] text-brand-logo-accent">{PANEL_LABEL}</p>
+			{panel.map((l) => <HeaderLink href={l.href} class="pl-3">{l.label}</HeaderLink>)}
+			{after.map((l) => <HeaderLink href={l.href}>{l.label}</HeaderLink>)}
 		</div>
 	</div>
 </header>
@@ -190,11 +199,6 @@ const links = [
 		color: rgb(255 255 255 / 0.7);
 		border-bottom: 2px solid transparent;
 		text-decoration: none;
-	}
-	@media (min-width: 1280px) {
-		header :global(.nav-links a.nav-link) {
-			padding-inline: 0.75rem;
-		}
 	}
 	header :global(a.nav-link:hover) {
 		color: white;
