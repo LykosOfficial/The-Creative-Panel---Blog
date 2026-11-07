@@ -6,18 +6,18 @@ const feedUrl = new URL('rss.xml', Astro.site).href; // https://joelgreen.studio
 ---
 
 <div>
-	<SectionTitle>RSS Feed</SectionTitle>
+	<SectionTitle small>RSS Feed</SectionTitle>
 	<div class="border border-border bg-card p-5">
 		<div class="mb-3 flex items-center gap-2.5">
 			<svg class="h-5 w-5 shrink-0 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"
 				><path d="M4 11a9 9 0 0 1 9 9M4 4a16 16 0 0 1 16 16"></path><circle cx="5" cy="19" r="1.2" fill="currentColor"></circle></svg
 			>
-			<p class="!m-0 font-display text-[16px] font-semibold uppercase tracking-[-0.2px]">Subscribe via RSS</p>
+			<p class="!m-0 font-display text-[10px] font-semibold uppercase tracking-[-0.2px]">Subscribe via RSS</p>
 		</div>
-		<p class="!mb-4 text-[16px] leading-relaxed text-muted-foreground">
+		<p class="!mb-4 text-[10px] leading-relaxed text-muted-foreground">
 			Get every new post delivered directly to your RSS reader. No algorithms, no noise — just the writing.
 		</p>
-		<a href="/rss/" class="label flex items-center justify-center gap-2.5 bg-primary px-4 py-2.5 !text-[16px] font-semibold !text-primary-foreground hover:opacity-90">
+		<a href="/rss/" class="label flex items-center justify-center gap-2.5 bg-primary px-4 py-2.5 !text-[10px] font-semibold !text-primary-foreground hover:opacity-90">
 			<svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"
 				><path d="M4 11a9 9 0 0 1 9 9M4 4a16 16 0 0 1 16 16"></path><circle cx="5" cy="19" r="1.2" fill="currentColor"></circle></svg
 			>
@@ -26,7 +26,7 @@ const feedUrl = new URL('rss.xml', Astro.site).href; // https://joelgreen.studio
 	</div>
 
 	<div class="mt-4 border border-border bg-card p-5">
-		<p class="label !mb-2 !text-[16px] font-semibold text-muted-foreground">Feed URL</p>
-		<a href="/rss/" class="break-all text-[16px]">{feedUrl}</a>
+		<p class="label !mb-2 !text-[10px] font-semibold text-muted-foreground">Feed URL</p>
+		<a href="/rss/" class="break-all text-[10px]">{feedUrl}</a>
 	</div>
 </div>

@@ -23,9 +23,11 @@ interface Props {
 	 */
 	deferLoad?: boolean;
 	class?: string;
+	/** Small 10px label (right column) */
+	small?: boolean;
 }
 
-const { slot, format = 'auto', layout, minHeight = 250, deferLoad = false, class: className } = Astro.props;
+const { slot, format = 'auto', layout, minHeight = 250, deferLoad = false, class: className, small = false } = Astro.props;
 const client = import.meta.env.PUBLIC_ADSENSE_CLIENT;
 const live = Boolean(client && slot);
 const showPlaceholder = !live && import.meta.env.DEV;
@@ -39,7 +41,7 @@ const insAttrs =
 {
 	(live || showPlaceholder) && (
 		<aside class:list={['ad-slot', className]} aria-label="Advertisement">
-			<p class="label !mb-2 text-[16px] text-muted-foreground">
+			<p class:list={['label !mb-2 text-muted-foreground', small ? '!text-[10px]' : 'text-[16px]']}>
 				Advertisement · <a href="/privacy#advertising" class="!text-muted-foreground no-underline hover:!text-primary">helps keep this site running</a>
 			</p>
 			{live ? (

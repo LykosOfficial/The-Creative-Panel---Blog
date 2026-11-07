@@ -89,7 +89,7 @@ const alsoLike = rank('views').filter((p) => !featured.includes(p)).slice(0, 3);
 				</div>
 			</aside>
 
-			<!-- Center: tags, featured, latest, most read, most liked / also like -->
+			<!-- Center: tags, latest, featured, most read, most liked / also like -->
 			<div class="order-1 min-w-0 lg:order-2">
 				<!-- Most-used tags (each opens its tag page), capped so the row never takes over the page -->
 				{
@@ -107,18 +107,7 @@ const alsoLike = rank('views').filter((p) => !featured.includes(p)).slice(0, 3);
 					)
 				}
 
-				{
-					featured.length > 0 && (
-						<section class="mb-12">
-							<SectionTitle>Featured</SectionTitle>
-							<div class="grid gap-px sm:grid-cols-2">
-								{featured.map((post) => <FeaturedCard post={post} />)}
-							</div>
-						</section>
-					)
-				}
-
-				<section>
+				<section class="mb-12">
 					<SectionTitle>Latest</SectionTitle>
 					<ul class="!m-0 !p-0" role="list">
 						{latest.map((post) => <PostRow post={post} />)}
@@ -134,6 +123,17 @@ const alsoLike = rank('views').filter((p) => !featured.includes(p)).slice(0, 3);
 						)
 					}
 				</section>
+
+				{
+					featured.length > 0 && (
+						<section class="mb-12">
+							<SectionTitle>Featured</SectionTitle>
+							<div class="grid gap-px sm:grid-cols-2">
+								{featured.map((post) => <FeaturedCard post={post} />)}
+							</div>
+						</section>
+					)
+				}
 
 				{
 					showRankings && (
@@ -153,7 +153,7 @@ const alsoLike = rank('views').filter((p) => !featured.includes(p)).slice(0, 3);
 				<AboutCard />
 				<PressContactCards />
 				<!-- AdSense: right sidebar -->
-				<AdSlot slot={import.meta.env.PUBLIC_ADSENSE_SLOT_HOME_SIDEBAR} format="vertical" minHeight={600} />
+				<AdSlot slot={import.meta.env.PUBLIC_ADSENSE_SLOT_HOME_SIDEBAR} format="vertical" minHeight={600} small />
 				<!-- Sticky on desktop once you scroll past the cards above -->
 				<div class="lg:sticky lg:top-[80px]">
 					<RssCard />
