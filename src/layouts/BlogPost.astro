@@ -31,8 +31,13 @@ const description = seoDescription(post);
 // Table of contents: only ## and ### headings
 const toc = headings.filter((h) => h.depth === 2 || h.depth === 3);
 // Related = closest matches by shared tags; "You might also like" = the newest other posts
+// not already shown under Related (so the same post never appears twice; the section hides when empty)
 const relatedCards = related.slice(0, 4);
-const alsoLike = related.slice().sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf()).slice(0, 3);
+const shown = new Set(relatedCards.map((p) => p.id));
+const alsoLike = related
+	.filter((p) => !shown.has(p.id))
+	.sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
+	.slice(0, 3);
 const pageUrl = new URL(Astro.url.pathname, Astro.site);
 // Like count at build time; the bars swap in the live API count once the page loads
 const { likes, views } = await getStats(post.id);

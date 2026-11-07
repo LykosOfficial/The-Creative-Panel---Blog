@@ -60,6 +60,8 @@ const { posts } = Astro.props;
 		.rcard {
 			width: auto;
 			flex: 1 1 0;
+			/* With only one or two related posts, cards stay card-sized instead of filling the row */
+			max-width: 50%;
 			transition: flex-grow 0.45s ease;
 		}
 		.rcard:hover,
