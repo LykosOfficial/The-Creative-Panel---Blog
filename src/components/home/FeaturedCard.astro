@@ -22,7 +22,7 @@ const { title, heroImage, tags } = post.data;
 
 	<div class="absolute inset-x-0 bottom-0 p-5">
 		<div class="mb-3 flex flex-wrap gap-1.5">
-			{tags.slice(0, 3).map((t) => <span class="border border-brand-teal-light/50 px-1.5 py-0.5 font-display text-[16px] font-semibold uppercase tracking-[0.1em] text-brand-teal-light">{t}</span>)}
+			{tags.slice(0, 3).map((t) => <span class="border border-brand-teal-light/50 px-1.5 py-0.5 font-display text-[10px] font-semibold uppercase tracking-[0.1em] text-brand-teal-light">{t}</span>)}
 		</div>
 		<h3 class="!mb-2 font-display !text-[24px] font-semibold uppercase !leading-[1.15] !text-white">{title}</h3>
 		<PostMeta post={post} class="text-white/60" />

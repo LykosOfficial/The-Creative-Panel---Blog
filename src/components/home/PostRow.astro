@@ -15,7 +15,7 @@ const { title, heroImage, tags } = post.data;
 	<a href={`/blog/${post.id}/`} class="group flex gap-4 !text-foreground no-underline">
 		<PostImage fallback={post.data.category ?? ''} src={heroImage} alt="" width={240} class="h-[72px] w-24 shrink-0 !rounded-none object-cover sm:h-24 sm:w-32" />
 		<div class="min-w-0">
-			<p class="!mb-1 font-display text-[16px] font-bold uppercase tracking-[0.1em] text-primary [word-spacing:0.35em]">
+			<p class="!mb-1 font-display text-[10px] font-bold uppercase tracking-[0.1em] text-primary [word-spacing:0.35em]">
 				{tags.slice(0, 3).map((t) => `#${t}`).join(' ')}
 			</p>
 			<h3 class="!mb-1.5 font-heading !text-[16px] font-medium !leading-snug group-hover:text-primary">{title}</h3>
