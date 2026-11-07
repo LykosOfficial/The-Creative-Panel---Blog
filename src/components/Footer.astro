@@ -1,6 +1,6 @@
 ---
 import { relFor } from '../lib/rehypeNofollow.mjs';
-// Site footer (prototype structure): logo + bio | Navigate | Connect,
+// Site footer (prototype structure): logo + bio | Navigate | More | Connect,
 // then a newsletter sign-up, then the copyright line.
 import { SITE_DESCRIPTION, SITE_TITLE } from '../consts';
 import { legalPages } from '../data/legal';
@@ -15,6 +15,9 @@ const navigate = [
 	{ href: '/trending', label: 'Trending' },
 	{ href: '/categories/', label: 'Categories' },
 	{ href: '/tags/', label: 'Tags' },
+];
+// Second column, so the footer stays short instead of one long stack
+const more = [
 	{ href: '/books', label: 'Books' },
 	{ href: '/sites', label: 'Sites' },
 	{ href: '/about', label: 'About' },
@@ -41,12 +44,24 @@ const connect = [
 				</p>
 			</div>
 
-			<div class="flex gap-16">
+			<div class="flex flex-wrap gap-x-14 gap-y-8">
 				<nav aria-label="Footer">
 					<p class="label !mb-3 !text-[16px] font-semibold text-muted-foreground">Navigate</p>
 					<ul class="!m-0 space-y-2 !p-0" role="list">
 						{
 							navigate.map((l) => (
+								<li class="list-none">
+									<a href={l.href} class="text-[16px] !text-foreground/80 hover:!text-primary">{l.label}</a>
+								</li>
+							))
+						}
+					</ul>
+				</nav>
+				<nav aria-label="More">
+					<p class="label !mb-3 !text-[16px] font-semibold text-muted-foreground">More</p>
+					<ul class="!m-0 space-y-2 !p-0" role="list">
+						{
+							more.map((l) => (
 								<li class="list-none">
 									<a href={l.href} class="text-[16px] !text-foreground/80 hover:!text-primary">{l.label}</a>
 								</li>
