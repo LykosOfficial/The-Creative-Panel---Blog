@@ -7,14 +7,14 @@ import { profile } from '../../data/profile';
 {
 	profile.press.length > 0 && (
 		<div class="border border-border bg-card p-5">
-			<p class="label !mb-3 !text-[10px] font-semibold text-muted-foreground">Press</p>
+			<p class="label !mb-3 !text-[16px] font-semibold text-muted-foreground">Press</p>
 			<div class="space-y-5">
 			{profile.press.map((p) => (
 				<figure class="!m-0">
-					<blockquote class="!m-0 border-l-[3px] border-primary !pl-4 font-sans !text-[13px] italic leading-relaxed text-foreground">
+					<blockquote class="!m-0 border-l-[3px] border-primary !pl-4 font-sans !text-[16px] italic leading-relaxed text-foreground">
 						“{p.quote}”
 					</blockquote>
-					<figcaption class="mt-2 text-[12px] text-muted-foreground">— {p.source}</figcaption>
+					<figcaption class="mt-2 text-[16px] text-muted-foreground">— {p.source}</figcaption>
 				</figure>
 			))}
 			</div>
@@ -25,8 +25,8 @@ import { profile } from '../../data/profile';
 {
 	profile.email && (
 		<div class="border border-border bg-card p-5">
-			<p class="label !mb-2 !text-[10px] font-semibold text-muted-foreground">Contact</p>
-			<a href={`mailto:${profile.email}`} class="break-all text-[13px]">{profile.email}</a>
+			<p class="label !mb-2 !text-[16px] font-semibold text-muted-foreground">Contact</p>
+			<a href={`mailto:${profile.email}`} class="break-all text-[16px]">{profile.email}</a>
 		</div>
 	)
 }

@@ -26,8 +26,8 @@ const { books } = Astro.props;
 							<img src={b.coverImage} alt="" class="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-105" />
 						)}
 						<span class="absolute inset-0 bg-black/35 transition group-hover:bg-black/20" aria-hidden="true" />
-						<span class="relative font-display text-[11px] font-semibold uppercase leading-tight">{b.title}</span>
-						<span class="relative text-[10px] tracking-[0.04em] text-white/60">{b.year ?? b.status}</span>
+						<span class="relative font-display text-[16px] font-semibold uppercase leading-tight">{b.title}</span>
+						<span class="relative text-[16px] tracking-[0.04em] text-white/60">{b.year ?? b.status}</span>
 					</a>
 				</li>
 			))
@@ -38,7 +38,7 @@ const { books } = Astro.props;
 		<svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg>
 	</button>
 
-	<a href="/books" class="label mt-4 inline-block !text-[10px] font-semibold !text-muted-foreground hover:!text-primary">All books →</a>
+	<a href="/books" class="label mt-4 inline-block !text-[16px] font-semibold !text-muted-foreground hover:!text-primary">All books →</a>
 </div>
 
 <script>

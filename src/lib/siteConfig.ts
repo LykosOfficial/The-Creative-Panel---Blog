@@ -33,7 +33,7 @@ const DEFAULTS: SiteConfig = {
 			{ label: 'About', href: '/about' },
 		],
 	},
-	sectionsMenu: { enabled: false, showSaved: true },
+	sectionsMenu: { enabled: true, showSaved: true },
 	sections: [],
 };
 

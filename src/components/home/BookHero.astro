@@ -35,18 +35,18 @@ const pct = b.targetWordCount ? Math.min(100, (b.wordCount / b.targetWordCount) 
 				<img src={b.coverImage} alt={`${b.title} cover`} class="aspect-[2/3] w-36 object-cover shadow-2xl md:w-full" />
 			) : (
 				<div class="flex aspect-[2/3] w-36 flex-col justify-between border border-white/10 bg-gradient-to-b from-[#123d3f] via-[#0b1f20] to-black p-4 shadow-2xl md:w-full">
-					<span class="label text-[9px] text-white/50">{b.series}</span>
+					<span class="label text-[16px] text-white/50">{b.series}</span>
 					<span class="font-logo text-[26px] font-bold uppercase leading-[0.95] tracking-tight text-brand-gold">{b.title}</span>
-					<span class="label text-[9px] text-white/60">Joel Green</span>
+					<span class="label text-[16px] text-white/60">Joel Green</span>
 				</div>
 			)
 		}
 
 		<div class="max-w-2xl">
-			{b.genre && <p class="label !mb-2 !text-[12px] text-brand-teal-light">{b.genre}</p>}
+			{b.genre && <p class="label !mb-2 !text-[16px] text-brand-teal-light">{b.genre}</p>}
 			{
 				b.series && (
-					<p class="label !mb-3 !text-[11px] text-white/50">
+					<p class="label !mb-3 !text-[16px] text-white/50">
 						{b.series}
 						{b.seriesOrder && <> · Book {b.seriesOrder}</>}
 					</p>
@@ -57,7 +57,7 @@ const pct = b.targetWordCount ? Math.min(100, (b.wordCount / b.targetWordCount) 
 			{b.blurb && <p class="!mb-4 max-w-xl text-[16px] leading-[1.6] text-white/70">{b.blurb}</p>}
 
 			<!-- One quiet meta line: year or status, plus writing progress while drafting -->
-			<div class="mb-7 flex flex-wrap items-center gap-x-4 gap-y-2 text-[10px] uppercase tracking-[0.1em] text-white/45">
+			<div class="mb-7 flex flex-wrap items-center gap-x-4 gap-y-2 text-[16px] uppercase tracking-[0.1em] text-white/45">
 				<span>{b.year ?? b.status}</span>
 				{
 					pct !== null && (
@@ -76,7 +76,7 @@ const pct = b.targetWordCount ? Math.min(100, (b.wordCount / b.targetWordCount) 
 					<a
 						href={b.link}
 						rel={relFor(b.link)}
-						class="label inline-flex items-center gap-2 border border-white/40 px-5 py-2.5 !text-[14px] !text-white transition hover:border-white hover:bg-white hover:!text-black"
+						class="label inline-flex items-center gap-2 border border-white/40 px-5 py-2.5 !text-[16px] !text-white transition hover:border-white hover:bg-white hover:!text-black"
 					>
 						Learn more →
 					</a>

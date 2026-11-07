@@ -32,16 +32,14 @@ const grid = page.current === 1 ? posts.slice(4) : posts;
 			<div class:list={['mb-12 grid gap-8', side.length > 0 ? 'lg:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)]' : 'max-w-4xl']}>
 				<a href={`/blog/${lead.id}/`} class="group block !text-foreground no-underline">
 					<div class="aspect-[16/9] overflow-hidden bg-brand-ink">
-						{lead.data.heroImage && (
-							<PostImage src={lead.data.heroImage} alt="" width={1100} class="h-full w-full !rounded-none object-cover transition duration-500 group-hover:scale-[1.03]" />
-						)}
+						<PostImage fallback={lead.data.category ?? ''} src={lead.data.heroImage} alt="" width={1100} class="h-full w-full !rounded-none object-cover transition duration-500 group-hover:scale-[1.03]" />
 					</div>
-					<p class="label !mb-2 mt-5 !text-[12px] text-primary">{termLabel(lead.data.category ?? '')}</p>
+					<p class="label !mb-2 mt-5 !text-[16px] text-primary">{termLabel(lead.data.category ?? '')}</p>
 					<h2 class="!mb-3 font-display !text-[34px] font-semibold uppercase !leading-[1.02] tracking-[-0.5px] transition-colors group-hover:text-primary md:!text-[42px]">
 						{lead.data.title}
 					</h2>
 					<p class="!mb-3 max-w-2xl text-[16px] leading-relaxed text-muted-foreground">{lead.data.description}</p>
-					<p class="label !m-0 !text-[12px] text-muted-foreground">
+					<p class="label !m-0 !text-[16px] text-muted-foreground">
 						{formatDate(lead.data.pubDate)} · {readingTime(lead)} min read
 					</p>
 				</a>
@@ -50,12 +48,12 @@ const grid = page.current === 1 ? posts.slice(4) : posts;
 						<li class="list-none border-b border-border pb-6 last:border-b-0">
 							<a href={`/blog/${p.id}/`} class="group flex gap-4 !text-foreground no-underline">
 								<div class="aspect-[4/3] w-32 shrink-0 overflow-hidden bg-muted">
-									{p.data.heroImage && <PostImage src={p.data.heroImage} alt="" width={300} class="h-full w-full !rounded-none object-cover" />}
+									<PostImage fallback={p.data.category ?? ''} src={p.data.heroImage} alt="" width={300} class="h-full w-full !rounded-none object-cover" />
 								</div>
 								<div class="min-w-0">
-									<p class="label !mb-1 !text-[11px] text-primary">{termLabel(p.data.category ?? '')}</p>
+									<p class="label !mb-1 !text-[16px] text-primary">{termLabel(p.data.category ?? '')}</p>
 									<h3 class="!mb-1.5 font-display !text-[20px] font-semibold uppercase !leading-[1.05] transition-colors group-hover:text-primary">{p.data.title}</h3>
-									<p class="label !m-0 !text-[11px] text-muted-foreground">{formatDate(p.data.pubDate)}</p>
+									<p class="label !m-0 !text-[16px] text-muted-foreground">{formatDate(p.data.pubDate)}</p>
 								</div>
 							</a>
 						</li>
@@ -72,16 +70,12 @@ const grid = page.current === 1 ? posts.slice(4) : posts;
 					<li class="list-none">
 						<a href={`/blog/${p.id}/`} class="group block !text-foreground no-underline">
 							<div class="aspect-[3/2] overflow-hidden bg-muted">
-								{p.data.heroImage ? (
-									<PostImage src={p.data.heroImage} alt="" width={600} class="h-full w-full !rounded-none object-cover transition duration-500 group-hover:scale-[1.03]" />
-								) : (
-									<div class="flex h-full items-center justify-center bg-brand-ink font-display text-[28px] font-semibold uppercase text-brand-gold">{termLabel(p.data.category ?? '')}</div>
-								)}
+								<PostImage fallback={p.data.category ?? ''} src={p.data.heroImage} alt="" width={600} class="h-full w-full !rounded-none object-cover transition duration-500 group-hover:scale-[1.03]" />
 							</div>
-							<p class="label !mb-1.5 mt-4 !text-[11px] text-primary">{termLabel(p.data.category ?? '')}</p>
+							<p class="label !mb-1.5 mt-4 !text-[16px] text-primary">{termLabel(p.data.category ?? '')}</p>
 							<h3 class="!mb-2 font-display !text-[24px] font-semibold uppercase !leading-[1.05] transition-colors group-hover:text-primary">{p.data.title}</h3>
-							<p class="!mb-2 text-[14px] leading-relaxed text-muted-foreground">{p.data.description}</p>
-							<p class="label !m-0 !text-[11px] text-muted-foreground">{formatDate(p.data.pubDate)} · {readingTime(p)} min read</p>
+							<p class="!mb-2 text-[16px] leading-relaxed text-muted-foreground">{p.data.description}</p>
+							<p class="label !m-0 !text-[16px] text-muted-foreground">{formatDate(p.data.pubDate)} · {readingTime(p)} min read</p>
 						</a>
 					</li>
 				))}

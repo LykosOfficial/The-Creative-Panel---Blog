@@ -21,10 +21,10 @@ const apiUrl = import.meta.env.PUBLIC_API_URL ?? '';
 	</div>
 
 	<ul class="comment-list !m-0 !p-0" role="list"></ul>
-	<p class="comment-empty !mb-8 text-[15px] uppercase tracking-[0.12em] text-muted-foreground">Be the first to comment.</p>
+	<p class="comment-empty !mb-8 text-[16px] uppercase tracking-[0.12em] text-muted-foreground">Be the first to comment.</p>
 
 	<form class="comment-form border border-border bg-card p-6">
-		<p class="label !mb-4 !text-[13px] font-semibold text-muted-foreground">Leave a comment</p>
+		<p class="label !mb-4 !text-[16px] font-semibold text-muted-foreground">Leave a comment</p>
 		<label class="sr-only" for="c-name">Your name</label>
 		<input id="c-name" name="name" required maxlength="80" placeholder="Your name *" class="field" />
 		<label class="sr-only" for="c-email">Email</label>
@@ -38,7 +38,7 @@ const apiUrl = import.meta.env.PUBLIC_API_URL ?? '';
 		</div>
 		<div class="flex items-center justify-between gap-4">
 			<p class="comment-status !m-0 text-sm" role="status"></p>
-			<button type="submit" class="label shrink-0 bg-primary px-5 py-3 !text-[12px] font-semibold text-primary-foreground hover:opacity-90">Post comment</button>
+			<button type="submit" class="label shrink-0 bg-primary px-5 py-3 !text-[16px] font-semibold text-primary-foreground hover:opacity-90">Post comment</button>
 		</div>
 	</form>
 </section>
@@ -64,7 +64,7 @@ const apiUrl = import.meta.env.PUBLIC_API_URL ?? '';
 				const li = document.createElement('li');
 				li.className = 'list-none border-b border-border py-5';
 				const meta = document.createElement('p');
-				meta.className = 'label !mb-2 text-[12px] text-muted-foreground';
+				meta.className = 'label !mb-2 text-[16px] text-muted-foreground';
 				const name = document.createElement('span');
 				name.className = 'font-semibold text-foreground';
 				name.textContent = c.name;

@@ -68,15 +68,15 @@ const booksDescription = fullDescription.length > 160 ? fullDescription.slice(0,
 											<img src={b.coverImage} alt={`${b.title} cover art`} class="h-full w-full object-cover transition duration-500 group-hover:scale-105" />
 										) : (
 											<div class="flex h-full flex-col justify-between bg-gradient-to-b from-[#123d3f] via-[#0b1f20] to-black p-6">
-												<span class="label text-[10px] text-white/50">{b.series ?? 'Joel Green'}</span>
+												<span class="label text-[16px] text-white/50">{b.series ?? 'Joel Green'}</span>
 												<span class="font-logo text-[40px] font-bold uppercase leading-[0.95] tracking-tight text-brand-gold">{b.title}</span>
-												<span class="label text-[10px] text-white/60">Joel Green</span>
+												<span class="label text-[16px] text-white/60">Joel Green</span>
 											</div>
 										)}
 									</div>
-									{b.genre && <p class="!mb-2 font-display text-[13px] font-bold uppercase tracking-[0.1em] text-primary">{b.genre}</p>}
+									{b.genre && <p class="!mb-2 font-display text-[16px] font-bold uppercase tracking-[0.1em] text-primary">{b.genre}</p>}
 									<h2 class="!mb-2 font-heading !text-[19px] font-medium !leading-snug transition-colors group-hover:text-primary">{b.title}</h2>
-									<p class="!m-0 text-[14px] uppercase tracking-[0.08em] text-muted-foreground">
+									<p class="!m-0 text-[16px] uppercase tracking-[0.08em] text-muted-foreground">
 										{b.year ?? b.status}
 										{b.seriesOrder && b.series && <> · Book {b.seriesOrder}</>}
 									</p>

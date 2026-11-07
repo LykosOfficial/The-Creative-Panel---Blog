@@ -35,33 +35,33 @@ const connect = [
 				<a href="/" class="font-logo text-[20px] font-bold uppercase leading-none tracking-tight no-underline">
 					<span class="text-brand-gold">{SITE_TITLE}</span><span class="text-brand-logo-accent">.</span>
 				</a>
-				<p class="!mb-0 mt-3 text-[15px] leading-relaxed text-muted-foreground">
+				<p class="!mb-0 mt-3 text-[16px] leading-relaxed text-muted-foreground">
 					{SITE_DESCRIPTION}. {profile.bio}
 				</p>
 			</div>
 
 			<div class="flex gap-16">
 				<nav aria-label="Footer">
-					<p class="label !mb-3 !text-[11px] font-semibold text-muted-foreground">Navigate</p>
+					<p class="label !mb-3 !text-[16px] font-semibold text-muted-foreground">Navigate</p>
 					<ul class="!m-0 space-y-2 !p-0" role="list">
 						{
 							navigate.map((l) => (
 								<li class="list-none">
-									<a href={l.href} class="text-[14px] !text-foreground/80 hover:!text-primary">{l.label}</a>
+									<a href={l.href} class="text-[16px] !text-foreground/80 hover:!text-primary">{l.label}</a>
 								</li>
 							))
 						}
 					</ul>
 				</nav>
 				<div>
-					<p class="label !mb-3 !text-[11px] font-semibold text-muted-foreground">Connect</p>
+					<p class="label !mb-3 !text-[16px] font-semibold text-muted-foreground">Connect</p>
 					<ul class="!m-0 space-y-2 !p-0" role="list">
 						{
 							connect.map((l) => (
 								<li class="list-none">
 									<a
 										href={l.href}
-										class="text-[14px] !text-foreground/80 hover:!text-primary"
+										class="text-[16px] !text-foreground/80 hover:!text-primary"
 										{...(l.external ? { target: '_blank', rel: relFor(l.href, 'noopener me') } : {})}
 									>
 										{l.label}
@@ -80,9 +80,9 @@ const connect = [
 				<svg class="h-4 w-4 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"
 					><rect x="3" y="5" width="18" height="14" rx="1"></rect><path d="m3 7 9 6 9-6"></path></svg
 				>
-				<p class="label !m-0 !text-[12px] font-semibold text-foreground">Newsletter</p>
+				<p class="label !m-0 !text-[16px] font-semibold text-foreground">Newsletter</p>
 			</div>
-			<p class="!mb-4 text-[14px] text-muted-foreground">New chapters, writing notes &amp; behind-the-scenes. No noise.</p>
+			<p class="!mb-4 text-[16px] text-muted-foreground">New chapters, writing notes &amp; behind-the-scenes. No noise.</p>
 			<form class="flex w-full" data-newsletter data-api={apiUrl}>
 				<label for="footer-email" class="sr-only">Email address</label>
 				<input
@@ -93,12 +93,12 @@ const connect = [
 					placeholder="your@email.com"
 					class="w-full min-w-0 border border-input bg-muted px-4 py-3 text-sm outline-none focus:border-primary"
 				/>
-				<button type="submit" class="label shrink-0 bg-primary px-6 !text-[12px] !font-semibold text-primary-foreground hover:opacity-90">
+				<button type="submit" class="label shrink-0 bg-primary px-6 !text-[16px] !font-semibold text-primary-foreground hover:opacity-90">
 					Subscribe
 				</button>
 			</form>
 			<p class="!mb-0 mt-3 text-sm" data-newsletter-status role="status" hidden></p>
-			<p class="!mb-0 mt-3 text-[12px] text-muted-foreground">
+			<p class="!mb-0 mt-3 text-[16px] text-muted-foreground">
 				Unsubscribe anytime. See the <a href="/privacy" class="!text-muted-foreground underline hover:!text-primary">Privacy Policy</a>.
 			</p>
 			<!-- EcoSend badge (newsletter provider). Link kept exactly as EcoSend supplied it; white version in dark mode. -->
@@ -109,7 +109,7 @@ const connect = [
 		</div>
 
 		<!-- Bottom line -->
-		<div class="mt-8 flex flex-col gap-2 border-t border-border pt-6 text-[13px] text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+		<div class="mt-8 flex flex-col gap-2 border-t border-border pt-6 text-[16px] text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
 			<p class="!m-0">© {year} Joel Green. All rights reserved.</p>
 			<nav aria-label="Legal" class="flex flex-wrap items-center gap-x-5 gap-y-1">
 				{legalPages.map((l) => <a href={l.href} class="!text-muted-foreground hover:!text-primary">{l.label}</a>)}

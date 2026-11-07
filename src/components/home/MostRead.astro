@@ -21,22 +21,20 @@ const top = (hasViews ? [...Astro.props.posts].sort((a, b) => views(b) - views(a
 				<svg class="h-5 w-5 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
 					<path d="m3 17 6-6 4 4 8-8M15 7h6v6" />
 				</svg>
-				<h2 class="label !m-0 !text-[14px] !font-medium tracking-[0.1em] text-foreground">Most Read</h2>
+				<h2 class="label !m-0 !text-[16px] !font-medium tracking-[0.1em] text-foreground">Most Read</h2>
 				<span class="h-px flex-1 bg-border" aria-hidden="true" />
 			</div>
 
 			<div class="-mx-4 flex snap-x snap-mandatory scroll-px-4 gap-2 overflow-x-auto px-4 pb-2 [scrollbar-width:none] sm:mx-0 sm:grid sm:grid-cols-3 sm:gap-1 sm:overflow-visible sm:px-0 sm:pb-0 lg:grid-cols-5">
 				{top.map((p) => (
 					<a href={`/blog/${p.id}/`} class="group relative block aspect-[7/6] w-[46%] shrink-0 snap-start overflow-hidden bg-brand-ink !text-white no-underline sm:w-auto">
-						{p.data.heroImage && (
-							<PostImage src={p.data.heroImage} alt="" width={480} class="absolute inset-0 h-full w-full !rounded-none object-cover transition duration-500 group-hover:scale-105" />
-						)}
+						<PostImage fallback={p.data.category ?? ''} src={p.data.heroImage} alt="" width={480} class="absolute inset-0 h-full w-full !rounded-none object-cover transition duration-500 group-hover:scale-105" />
 						<div class="absolute inset-0 bg-gradient-to-b from-black/55 via-black/25 to-black/70" />
 						<div class="absolute inset-0 flex flex-col p-3">
-							<h3 class="!m-0 line-clamp-3 font-display !text-[12px] font-semibold uppercase !leading-[1.25] text-white group-hover:text-brand-teal-light">{p.data.title}</h3>
+							<h3 class="!m-0 line-clamp-3 font-display !text-[16px] font-semibold uppercase !leading-[1.25] text-white group-hover:text-brand-teal-light">{p.data.title}</h3>
 							<div class="mt-auto">
-								<p class="!mb-0.5 font-display text-[10px] font-bold uppercase tracking-[0.1em] text-white">{p.data.category}</p>
-								<p class="!m-0 text-[10px] uppercase tracking-[0.06em] text-white/75">
+								<p class="!mb-0.5 font-display text-[16px] font-bold uppercase tracking-[0.1em] text-white">{p.data.category}</p>
+								<p class="!m-0 text-[16px] uppercase tracking-[0.06em] text-white/75">
 									<span data-live="views" data-slug={p.id}>{views(p).toLocaleString()}</span> views
 								</p>
 							</div>

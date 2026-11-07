@@ -16,13 +16,13 @@ const { label, kicker, description, count, siblings = [], page = { current: 1, t
 
 <section class="overflow-hidden border-b border-border">
 	<div class="page-wide pb-10 pt-14 md:pt-20">
-		<p class="label !mb-2 !text-[12px] text-primary">{kicker}</p>
+		<p class="label !mb-2 !text-[16px] text-primary">{kicker}</p>
 		<h1 class="!m-0 break-words font-display !text-[72px] font-bold uppercase !leading-[0.85] tracking-[-2px] sm:!text-[110px] lg:!text-[150px]">
 			{label}<span class="text-brand-logo-accent">.</span>
 		</h1>
 		<div class="mt-6 flex flex-wrap items-end justify-between gap-4">
 			{description && <p class="!m-0 max-w-xl text-[17px] leading-relaxed text-muted-foreground">{description}</p>}
-			<p class="label !m-0 !text-[12px] text-muted-foreground">
+			<p class="label !m-0 !text-[16px] text-muted-foreground">
 				{meta ?? `${count} ${count === 1 ? 'post' : 'posts'}${page.total > 1 ? ` · page ${page.current} of ${page.total}` : ''}`}
 			</p>
 		</div>

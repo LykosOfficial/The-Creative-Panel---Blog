@@ -12,9 +12,9 @@ import TermHeader from './taxonomy/TermHeader.astro';
 	meta=" "
 />
 <main class="page-narrow py-10">
-	<p class="!mb-3 text-[12px] uppercase tracking-[0.1em] text-muted-foreground" data-saved-count>Loading…</p>
+	<p class="!mb-3 text-[16px] uppercase tracking-[0.1em] text-muted-foreground" data-saved-count>Loading…</p>
 	<ul class="!m-0 border border-border !p-0" role="list" data-saved-list hidden></ul>
-	<p class="text-[15px] leading-relaxed text-muted-foreground" data-saved-empty hidden>
+	<p class="text-[16px] leading-relaxed text-muted-foreground" data-saved-empty hidden>
 		Nothing saved yet. Tap the bookmark on any post to keep it here for later. <a href="/blog/">Browse the archive →</a>
 	</p>
 </main>
@@ -36,11 +36,11 @@ import TermHeader from './taxonomy/TermHeader.astro';
 				.map(
 					(p) => `<li class="flex list-none items-center gap-4 border-b border-border p-5 last:border-b-0">
 						<a href="${esc(p.url)}" class="group min-w-0 flex-1 !text-foreground no-underline">
-							<p class="label !mb-1 !text-[11px] text-primary">${esc(p.category)}</p>
+							<p class="label !mb-1 !text-[16px] text-primary">${esc(p.category)}</p>
 							<p class="!mb-1 font-display text-[22px] font-semibold uppercase leading-tight group-hover:text-primary">${esc(p.title)}</p>
-							<p class="label !m-0 !text-[11px] text-muted-foreground">${esc(p.date)}</p>
+							<p class="label !m-0 !text-[16px] text-muted-foreground">${esc(p.date)}</p>
 						</a>
-						<button type="button" data-unsave="${esc(p.id)}" class="label shrink-0 border border-border px-3 py-1.5 !text-[11px] text-muted-foreground hover:border-primary hover:text-primary">Remove</button>
+						<button type="button" data-unsave="${esc(p.id)}" class="label shrink-0 border border-border px-3 py-1.5 !text-[16px] text-muted-foreground hover:border-primary hover:text-primary">Remove</button>
 					</li>`,
 				)
 				.join('');

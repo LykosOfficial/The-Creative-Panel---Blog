@@ -19,7 +19,7 @@ const posts = (n: number) => `${n} ${n === 1 ? 'post' : 'posts'}`;
 <div data-tag-index>
 			<!-- Sort tabs: A–Z is the order on the page (works without JavaScript); the others re-sort in place -->
 			<div role="group" aria-label="Sort tags" class="mb-8 flex flex-wrap items-center gap-1.5">
-				<span class="label mr-2 !text-[11px] text-muted-foreground">Sort</span>
+				<span class="label mr-2 !text-[16px] text-muted-foreground">Sort</span>
 				<button type="button" class="sort-tab" data-sort="az" aria-pressed="true">A–Z</button>
 				<button type="button" class="sort-tab" data-sort="za" aria-pressed="false">Z–A</button>
 				<button type="button" class="sort-tab" data-sort="most" aria-pressed="false">Most posts</button>
@@ -66,7 +66,7 @@ const posts = (n: number) => `${n} ${n === 1 ? 'post' : 'posts'}`;
 <style>
 	.sort-tab {
 		font-family: var(--font-display);
-		font-size: 12px;
+		font-size: 16px;
 		font-weight: 600;
 		letter-spacing: 0.08em;
 		text-transform: uppercase;
@@ -88,16 +88,16 @@ const posts = (n: number) => `${n} ${n === 1 ? 'post' : 'posts'}`;
 	}
 	.cloud-count {
 		display: inline-flex;
-		min-width: 1.35rem;
-		height: 1.35rem;
+		min-width: 1.9rem;
+		height: 1.9rem;
 		align-items: center;
 		justify-content: center;
-		padding: 0 0.4rem;
+		padding: 0 0.55rem;
 		border-radius: 999px;
 		background: var(--color-brand-ink);
 		color: #fff;
 		font-family: var(--font-display);
-		font-size: 11px;
+		font-size: 16px;
 		font-weight: 600;
 		letter-spacing: 0.02em;
 		font-variant-numeric: tabular-nums;

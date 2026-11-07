@@ -31,7 +31,7 @@ export default function PanelMenu({ label, links, pathname }: Props) {
     <DropdownMenu modal={false}>
       <DropdownMenuTrigger
         className={cn(
-          "panel-trigger inline-flex items-center gap-1 border-b-2 border-transparent px-2 py-2 text-[12px] uppercase tracking-[1px] text-white/70 outline-none transition-colors hover:text-white focus-visible:text-white data-[state=open]:text-white",
+          "panel-trigger inline-flex items-center gap-1 border-b-2 border-transparent px-2 py-2 text-[16px] uppercase tracking-[1px] text-white/70 outline-none transition-colors hover:text-white focus-visible:text-white data-[state=open]:text-white",
           active && "border-brand-teal-light !text-brand-teal-light"
         )}
         style={{ fontFamily: "var(--font-heading)" }}
@@ -54,12 +54,12 @@ export default function PanelMenu({ label, links, pathname }: Props) {
             >
               <a href={l.href} aria-current={current ? "page" : undefined} className="no-underline">
                 <span
-                  className={cn("text-[12px] uppercase tracking-[1px]", current ? "text-brand-teal-light" : "text-white")}
+                  className={cn("text-[16px] uppercase tracking-[1px]", current ? "text-brand-teal-light" : "text-white")}
                   style={{ fontFamily: "var(--font-heading)" }}
                 >
                   {l.label}
                 </span>
-                <span className="text-[12px] leading-snug text-white/55">{l.description}</span>
+                <span className="text-[16px] leading-snug text-white/55">{l.description}</span>
               </a>
             </DropdownMenuItem>
           )

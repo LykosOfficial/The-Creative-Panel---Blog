@@ -29,9 +29,9 @@ const initials = profile.name.split(' ').map((w) => w[0]).join('').slice(0, 2);
 				</div>
 			)
 		}
-		<p class="!mb-0.5 font-display text-[14px] font-semibold uppercase leading-tight tracking-[-0.2px]">{profile.name}</p>
-		<p class="!mb-3 text-[10px] uppercase tracking-[0.1em] text-muted-foreground">{profile.role}</p>
-		<p class="!mb-3 text-[12px] leading-relaxed text-muted-foreground">{profile.bio}</p>
+		<p class="!mb-0.5 font-display text-[16px] font-semibold uppercase leading-tight tracking-[-0.2px]">{profile.name}</p>
+		<p class="!mb-3 text-[16px] uppercase tracking-[0.1em] text-muted-foreground">{profile.role}</p>
+		<p class="!mb-3 text-[16px] leading-relaxed text-muted-foreground">{profile.bio}</p>
 
 		{
 			profile.socials.length > 0 && (
@@ -47,6 +47,6 @@ const initials = profile.name.split(' ').map((w) => w[0]).join('').slice(0, 2);
 			)
 		}
 
-		<a href="/about" class="label !text-[10px] font-semibold">Full bio →</a>
+		<a href="/about" class="label !text-[16px] font-semibold">Full bio →</a>
 	</div>
 </div>

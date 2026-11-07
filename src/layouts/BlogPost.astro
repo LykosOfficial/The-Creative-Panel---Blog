@@ -111,7 +111,7 @@ const schema = [
 				<div class="relative mx-auto w-full max-w-7xl px-4 pb-10 pt-24 sm:px-6">
 					{
 						(category || tags.length > 0) && (
-							<p class="label !mb-4 flex flex-wrap items-center gap-x-2.5 gap-y-1 text-[12px]">
+							<p class="label !mb-4 flex flex-wrap items-center gap-x-2.5 gap-y-1 text-[16px]">
 								{category && (
 									<a href={categoryUrl(category)} class="border border-brand-teal-light/60 px-2 py-0.5 !text-white no-underline transition-colors hover:border-white">
 										{termLabel(category)}
@@ -128,8 +128,8 @@ const schema = [
 					<h1 class="!mb-5 max-w-3xl font-display !text-4xl font-medium uppercase !leading-[1] tracking-[-0.5px] !text-white sm:!text-5xl md:!text-[56px]">
 						{title}
 					</h1>
-					<p class="label !m-0 flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px] text-white/65">
-						<span class="font-logo text-[13px] font-bold tracking-tight text-white">
+					<p class="label !m-0 flex flex-wrap items-center gap-x-3 gap-y-1 text-[16px] text-white/65">
+						<span class="font-logo text-[16px] font-bold tracking-tight text-white">
 							Joel Green<span class="text-brand-logo-accent">.</span>
 						</span>
 						<span aria-hidden="true">·</span>
@@ -159,7 +159,7 @@ const schema = [
 					toc.length > 0 && (
 						<aside class="toc-rail" aria-label="Table of contents">
 							<nav class="toc-rail-inner">
-								<p class="label !mb-3 !text-[11px] font-semibold text-muted-foreground">On this page</p>
+								<p class="label !mb-3 !text-[16px] font-semibold text-muted-foreground">On this page</p>
 								<ol class="!m-0 border-l border-border !p-0">
 									{toc.map((h) => (
 										<li class="list-none">
@@ -167,7 +167,7 @@ const schema = [
 												href={`#${h.slug}`}
 												data-toc-link={h.slug}
 												class:list={[
-													'-ml-px block border-l-2 border-transparent py-1.5 text-[14px] leading-snug !text-muted-foreground no-underline hover:!text-primary',
+													'-ml-px block border-l-2 border-transparent py-1.5 text-[16px] leading-snug !text-muted-foreground no-underline hover:!text-primary',
 													h.depth === 3 ? 'pl-7' : 'pl-4',
 												]}
 											>
@@ -181,7 +181,7 @@ const schema = [
 					)
 				}
 				<div class="article-col">
-				<a href="/blog" class="label inline-flex items-center gap-2 !text-[12px] font-semibold">← Back</a>
+				<a href="/blog" class="label inline-flex items-center gap-2 !text-[16px] font-semibold">← Back</a>
 				<hr class="my-6" />
 
 				{description && <p class="!mb-8 font-heading text-[19px] leading-snug text-muted-foreground">{description}</p>}
@@ -189,13 +189,13 @@ const schema = [
 				{
 					toc.length > 0 && (
 						<details class="toc mb-10 border border-border bg-card xl:hidden" open>
-							<summary class="label flex cursor-pointer list-none items-center gap-2 px-5 py-4 !text-[12px] text-muted-foreground">
+							<summary class="label flex cursor-pointer list-none items-center gap-2 px-5 py-4 !text-[16px] text-muted-foreground">
 								<span aria-hidden="true">☰</span> Table of contents
 							</summary>
 							<ol class="!m-0 border-t border-border !px-5 !py-4">
 								{toc.map((h) => (
 									<li class:list={['list-none !mb-1.5', h.depth === 3 && 'pl-4']}>
-										<a href={`#${h.slug}`} class="text-[15px] !text-foreground hover:!text-primary">
+										<a href={`#${h.slug}`} class="text-[16px] !text-foreground hover:!text-primary">
 											{h.text}
 										</a>
 									</li>

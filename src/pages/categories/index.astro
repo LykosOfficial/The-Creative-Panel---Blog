@@ -56,7 +56,7 @@ const schema = [
 								<li class="list-none border-b border-border">
 									<div class="grid items-center gap-6 py-8 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
 										<a href={`/categories/${c.slug}/`} class="group block !text-foreground no-underline">
-											<p class="label !mb-2 !text-[12px] text-muted-foreground">
+											<p class="label !mb-2 !text-[16px] text-muted-foreground">
 												{c.posts.length} {c.posts.length === 1 ? 'post' : 'posts'}
 											</p>
 											<h2 class="!mb-2 font-display !text-[44px] font-bold uppercase !leading-[0.9] tracking-[-1px] transition-colors group-hover:text-primary md:!text-[56px]">
@@ -68,10 +68,10 @@ const schema = [
 										{latest && (
 											<a href={`/blog/${latest.id}/`} class="group flex items-center gap-4 !text-foreground no-underline md:justify-self-end">
 												<div class="aspect-[4/3] w-28 shrink-0 overflow-hidden bg-muted">
-													{latest.data.heroImage && <PostImage src={latest.data.heroImage} alt="" width={300} class="h-full w-full !rounded-none object-cover" />}
+													<PostImage fallback={latest.data.category ?? ''} src={latest.data.heroImage} alt="" width={300} class="h-full w-full !rounded-none object-cover" />
 												</div>
 												<div class="min-w-0 max-w-xs">
-													<p class="label !mb-1 !text-[11px] text-primary">Latest · {formatDate(latest.data.pubDate)}</p>
+													<p class="label !mb-1 !text-[16px] text-primary">Latest · {formatDate(latest.data.pubDate)}</p>
 													<p class="!m-0 font-display text-[20px] font-semibold uppercase leading-tight transition-colors group-hover:text-primary">{latest.data.title}</p>
 												</div>
 											</a>
@@ -82,7 +82,7 @@ const schema = [
 						})}
 					</ul>
 				) : (
-					<p class="text-[15px] text-muted-foreground">No categories yet.</p>
+					<p class="text-[16px] text-muted-foreground">No categories yet.</p>
 				)
 			}
 		</main>

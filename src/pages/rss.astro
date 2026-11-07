@@ -37,24 +37,24 @@ const schema = [breadcrumbs([{ name: 'RSS feed', path: '/rss/' }]), { '@type': '
 					arrive automatically. No algorithms, no noise.
 				</p>
 				<div class="flex flex-wrap items-stretch gap-2">
-					<code class="min-w-0 flex-1 break-all bg-muted px-4 py-3 text-[14px]" data-feed-url>{feedUrl}</code>
-					<button type="button" class="label shrink-0 bg-primary px-5 !text-[12px] !font-semibold text-primary-foreground hover:opacity-90" data-copy-feed>
+					<code class="min-w-0 flex-1 break-all bg-muted px-4 py-3 text-[16px]" data-feed-url>{feedUrl}</code>
+					<button type="button" class="label shrink-0 bg-primary px-5 !text-[16px] !font-semibold text-primary-foreground hover:opacity-90" data-copy-feed>
 						Copy
 					</button>
 				</div>
-				<p class="!mb-0 mt-3 text-[13px] text-muted-foreground">
+				<p class="!mb-0 mt-3 text-[16px] text-muted-foreground">
 					Prefer email? Use the newsletter sign-up at the bottom of the page.
 				</p>
 			</div>
 
-			<h2 class="label !mb-5 !text-[14px] !font-medium tracking-[0.1em]">Recent posts</h2>
+			<h2 class="label !mb-5 !text-[16px] !font-medium tracking-[0.1em]">Recent posts</h2>
 			{
 				posts.length > 0 ? (
 					<ul class="!m-0 !p-0" role="list">
 						{posts.map((post) => <PostRow post={post} />)}
 					</ul>
 				) : (
-					<p class="text-[15px] text-muted-foreground">No posts yet. The first essays and chapters are on their way.</p>
+					<p class="text-[16px] text-muted-foreground">No posts yet. The first essays and chapters are on their way.</p>
 				)
 			}
 		</main>

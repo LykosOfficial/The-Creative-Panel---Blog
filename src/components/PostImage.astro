@@ -2,27 +2,62 @@
 // A post/book image that works for both kinds of source:
 //  - a local file imported by Astro (Markdown posts in src/content) → optimized <Image>
 //  - a URL string (posts written in the admin, stored in the database) → plain <img>
+// No image? Pass `fallback` (the post's category) and it shows that name in gold on dark,
+// sized to fit the space, instead of an empty box.
 import type { ImageMetadata } from 'astro';
 import { Image } from 'astro:assets';
+import { termLabel } from '../lib/taxonomy';
 
 interface Props {
-	src: ImageMetadata | string;
+	src?: ImageMetadata | string;
 	alt?: string;
 	width?: number;
 	height?: number;
 	class?: string;
 	/** The main image above the fold (post cover): load it first instead of lazily */
 	priority?: boolean;
+	/** Shown in gold when there's no image, usually the post's category */
+	fallback?: string;
 }
-const { src, alt = '', width, height, class: className, priority = false } = Astro.props;
+const { src, alt = '', width, height, class: className, priority = false, fallback } = Astro.props;
 const loading = priority ? 'eager' : 'lazy';
 const fetchpriority = priority ? 'high' : undefined;
 ---
 
 {
-	typeof src === 'string' ? (
+	!src ? (
+		fallback !== undefined && (
+			<div class:list={['cover-fallback', className]} aria-hidden="true">
+				<span>{termLabel(fallback || 'The Creative Panel')}</span>
+			</div>
+		)
+	) : typeof src === 'string' ? (
 		<img src={src} alt={alt} width={width} height={height} class={className} loading={loading} fetchpriority={fetchpriority} decoding="async" />
 	) : (
 		<Image src={src} alt={alt} width={width} height={height} class={className} loading={loading} fetchpriority={fetchpriority} />
 	)
 }
+
+<style>
+	/* Text scales with the box (container units), so it fits a 64px thumbnail and a full-width lead */
+	.cover-fallback {
+		container-type: inline-size;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		overflow: hidden;
+		background: var(--color-brand-ink);
+		padding: 0 6%;
+	}
+	.cover-fallback span {
+		font-family: var(--font-display);
+		font-weight: 600;
+		text-transform: uppercase;
+		text-align: center;
+		line-height: 0.95;
+		letter-spacing: -0.01em;
+		color: var(--color-brand-gold);
+		font-size: clamp(9px, 13cqw, 64px);
+		overflow-wrap: anywhere;
+	}
+</style>

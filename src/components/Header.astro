@@ -26,7 +26,12 @@ const sectionsVariant = Astro.props.sectionsVariant ?? 'auto';
 const sectionsSaved = Astro.props.sectionsSaved ?? config.sectionsMenu.showSaved;
 // "auto" covers every screen size, so its ☰ replaces the phone menu
 const sectionsEverywhere = Boolean(sections) && sectionsVariant === 'auto';
+// Every destination (incl. dropdown items like Archive and Tags) along the menu's bottom row
 const browse = flatLinks(config);
+// With the ☰ menu on, dropdowns leave the navbar (their links live in the menu),
+// and the menu is titled after the first one: "The Panel"
+const navbarLinks = sections ? links.filter((l) => !isDropdown(l)) : links;
+const menuTitle = links.find(isDropdown)?.label ?? 'The Panel';
 ---
 
 <!-- Solid black at the top; turns to frosted glass once you scroll (.scrolled, set below) -->
@@ -37,14 +42,14 @@ const browse = flatLinks(config);
 			<span class="text-brand-gold text-[22px] sm:text-[26px]">{SITE_TITLE}</span>
 			<!-- Tagline is hidden on phones: "The Creative Panel" only -->
 			<span class="hidden sm:inline text-brand-logo-accent mx-2">—</span>
-			<span class="hidden sm:inline text-[15px]">{SITE_DESCRIPTION}</span>
+			<span class="hidden sm:inline text-[16px]">{SITE_DESCRIPTION}</span>
 			<span class="text-brand-logo-accent text-[22px] sm:text-[26px]">.</span>
 		</a>
 
 		<div class="flex items-center gap-1">
 			<!-- Desktop links -->
 			<div class="nav-links mr-2 hidden items-center min-[1180px]:flex xl:mr-3 xl:gap-1">
-				{links.map((l) =>
+				{navbarLinks.map((l) =>
 					isDropdown(l) ? <PanelMenu client:idle label={l.label} links={l.items} pathname={pathname} /> : <HeaderLink href={l.href}>{l.label}</HeaderLink>,
 				)}
 			</div>
@@ -68,7 +73,7 @@ const browse = flatLinks(config);
 			{
 				sections && (
 					<div class:list={[sectionsEverywhere ? 'block' : 'hidden min-[1180px]:block']}>
-						<SectionsMenu client:idle sections={sections} browse={browse} variant={sectionsVariant} saved={sectionsSaved} savedHref={Astro.props.savedHref} />
+						<SectionsMenu client:idle sections={sections} browse={browse} variant={sectionsVariant} saved={sectionsSaved} savedHref={Astro.props.savedHref} title={menuTitle} />
 					</div>
 				)
 			}
@@ -86,7 +91,7 @@ const browse = flatLinks(config);
 			{links.map((l) =>
 				isDropdown(l) ? (
 					<>
-						<p class="mobile-group !mb-0 mt-3 pb-1 text-[11px] uppercase tracking-[2px] text-brand-logo-accent">{l.label}</p>
+						<p class="mobile-group !mb-0 mt-3 pb-1 text-[16px] uppercase tracking-[2px] text-brand-logo-accent">{l.label}</p>
 						{l.items.map((it) => <HeaderLink href={it.href} class="pl-3">{it.label}</HeaderLink>)}
 					</>
 				) : (
@@ -103,7 +108,7 @@ const browse = flatLinks(config);
 		<input type="search" placeholder="Search posts…" class="w-full bg-transparent text-lg outline-none" autocomplete="off" />
 	</div>
 	<ul class="search-results !m-0 max-h-[60vh] overflow-y-auto !p-0" role="list"></ul>
-	<p class="search-empty label !m-0 hidden p-5 text-[12px] text-muted-foreground">No matches.</p>
+	<p class="search-empty label !m-0 hidden p-5 text-[16px] text-muted-foreground">No matches.</p>
 </dialog>
 
 <script>
@@ -152,7 +157,7 @@ const browse = flatLinks(config);
 			a.href = e.url;
 			a.className = 'block px-5 py-3 no-underline hover:bg-muted';
 			const meta = document.createElement('span');
-			meta.className = 'label block text-[11px] text-primary';
+			meta.className = 'label block text-[16px] text-primary';
 			meta.textContent = `${e.category} · ${e.date}`;
 			const title = document.createElement('span');
 			title.className = 'block font-heading text-[17px] text-foreground';
@@ -214,7 +219,7 @@ const browse = flatLinks(config);
 	/* Nav links: Barlow, 12px, uppercase, wide tracking (matches prototype) */
 	header :global(a.nav-link) {
 		font-family: var(--font-heading);
-		font-size: 12px;
+		font-size: 16px;
 		text-transform: uppercase;
 		letter-spacing: 1.2px;
 		padding: 0.5rem 0.55rem;

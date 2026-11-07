@@ -60,6 +60,10 @@ const rank = (key: 'likes' | 'views') => {
 	if (posts.some((p) => score(p.id) > 0)) return [...posts].sort((a, b) => score(b.id) - score(a.id));
 	return key === 'likes' ? posts : [...posts].reverse();
 };
+// Most Read, Most Liked and You might also like only show once there are enough posts:
+// with fewer, they just repeat the same stories as Latest
+const RANKINGS_FROM = 10;
+const showRankings = posts.length >= RANKINGS_FROM;
 const mostLiked = rank('likes').slice(0, 3);
 const alsoLike = rank('views').filter((p) => !featured.includes(p)).slice(0, 3);
 ---
@@ -96,7 +100,7 @@ const alsoLike = rank('views').filter((p) => !featured.includes(p)).slice(0, 3);
 									#{t.label}
 								</a>
 							))}
-							<a href="/tags/" class="ml-1 font-display text-[11px] font-semibold uppercase tracking-[0.08em] !text-primary no-underline hover:underline">
+							<a href="/tags/" class="ml-1 font-display text-[16px] font-semibold uppercase tracking-[0.08em] !text-primary no-underline hover:underline">
 								All tags →
 							</a>
 						</nav>
@@ -122,21 +126,26 @@ const alsoLike = rank('views').filter((p) => !featured.includes(p)).slice(0, 3);
 					{
 						posts.length === 0 ? (
 							// Before the first post: say so, and point to the newsletter
-							<p class="!mb-0 border border-dashed border-border px-6 py-8 text-[15px] leading-relaxed text-muted-foreground">
+							<p class="!mb-0 border border-dashed border-border px-6 py-8 text-[16px] leading-relaxed text-muted-foreground">
 								The first essays and chapters are on their way. Subscribe to the newsletter above to get them first.
 							</p>
 						) : (
-							<a href="/blog" class="label mt-6 inline-block !text-[12px] font-semibold">View the archive →</a>
+							<a href="/blog" class="label mt-6 inline-block !text-[16px] font-semibold">View the archive →</a>
 						)
 					}
 				</section>
 
-				<MostRead posts={posts} />
-
-				<div class="mt-12 grid gap-10 lg:grid-cols-2 lg:gap-6">
-					<PostList title="Most Liked" icon="heart" meta="likes" posts={mostLiked} />
-					<PostList title="You might also like" icon="sparkle" meta="views" posts={alsoLike} />
-				</div>
+				{
+					showRankings && (
+						<>
+							<MostRead posts={posts} />
+							<div class="mt-12 grid gap-10 lg:grid-cols-2 lg:gap-6">
+								<PostList title="Most Liked" icon="heart" meta="likes" posts={mostLiked} />
+								<PostList title="You might also like" icon="sparkle" meta="views" posts={alsoLike} />
+							</div>
+						</>
+					)
+				}
 			</div>
 
 			<!-- Right: about -->
