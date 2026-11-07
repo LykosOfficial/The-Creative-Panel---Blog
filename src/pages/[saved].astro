@@ -1,0 +1,28 @@
+---
+// /saved/: posts the reader saved on this device. Only built when the ☰ sections menu is
+// switched on in the admin (Navigation page), since that menu is what links here.
+import BaseHead from '../components/BaseHead.astro';
+import Footer from '../components/Footer.astro';
+import Header from '../components/Header.astro';
+import SavedList from '../components/SavedList.astro';
+import { SITE_TITLE } from '../consts';
+import { getSiteConfig } from '../lib/siteConfig';
+
+export async function getStaticPaths() {
+	const { sectionsMenu } = await getSiteConfig();
+	return sectionsMenu.enabled ? [{ params: { saved: 'saved' } }] : [];
+}
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<!-- Different for every reader, so there's nothing for search engines here -->
+		<BaseHead title={`Saved posts — ${SITE_TITLE}`} description="Posts you've saved to read later on The Creative Panel." noindex />
+	</head>
+	<body>
+		<Header />
+		<SavedList />
+		<Footer />
+	</body>
+</html>

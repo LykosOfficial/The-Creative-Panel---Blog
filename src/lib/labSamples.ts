@@ -47,3 +47,13 @@ export function labPosts(real: Post[]): Post[] {
 }
 
 export { CATEGORY_BLURBS } from '../data/categories';
+
+/** Design lab only: what a grown-up section structure could look like (sections → subsections). */
+export const SAMPLE_SECTIONS = [
+	{ label: 'Writing', href: '/categories/writing/', subs: ['Drafting', 'Revision', 'Writing Life', 'Habits'] },
+	{ label: 'Craft', href: '#', subs: ['Character', 'Structure', 'Voice', 'Dialogue', 'Tension'] },
+	{ label: 'Worldbuilding', href: '#', subs: ['Astroseed', 'Mythology', 'Maps', 'Technology'] },
+	{ label: 'The Halo', href: '#', subs: ['Chapter Notes', 'Characters', 'Behind the Scenes', 'Progress'] },
+	{ label: 'Reading', href: '#', subs: ['Reviews', 'Recommendations', 'Reading Lists'] },
+	{ label: 'News', href: '/categories/news/', subs: ['Announcements', 'Site Updates', 'Events'] },
+].map((s) => ({ ...s, subs: s.subs.map((label) => ({ label, href: '#' })) }));

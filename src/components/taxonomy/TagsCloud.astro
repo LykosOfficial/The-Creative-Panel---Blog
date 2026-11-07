@@ -1,49 +1,22 @@
 ---
-// Tags index, "Word cloud": every tag in one flowing block, A–Z.
-//   look="even"  (default): every word the same size, post count in a bubble (1,000+ → "1K")
-//   look="sized": bigger words for tags with more posts (the original lab version B)
+// Tags index, "Word cloud": every tag the same size with its post count in a bubble (1,000+ → "1K"),
+// A–Z by default, with tabs to sort Z–A, most posts or fewest posts.
 import type { Term } from '../../lib/taxonomy';
 
 interface Props {
 	terms: Term[];
 	base: string;
 	prefix?: string;
-	look?: 'sized' | 'even';
 }
-const { terms, base, prefix = '', look = 'even' } = Astro.props;
+const { terms, base, prefix = '' } = Astro.props;
 /** 7 → "7", 1,234 → "1.2K", 15,000 → "15K" (shortened once a count reaches 4 digits) */
 const short = (n: number) => (n < 1000 ? String(n) : new Intl.NumberFormat('en', { notation: 'compact', maximumFractionDigits: 1 }).format(n));
-const max = Math.max(1, ...terms.map((t) => t.posts.length));
-// 5 sizes, from 18px (one post) to 64px (the most-used tag)
-const size = (n: number) => [18, 26, 36, 48, 64][Math.min(4, Math.floor(((n - 1) / Math.max(1, max - 1)) * 4.999))];
 const sorted = [...terms].sort((a, b) => a.label.localeCompare(b.label));
 const href = (t: Term) => `${base}${t.slug}/`;
 const posts = (n: number) => `${n} ${n === 1 ? 'post' : 'posts'}`;
 ---
 
-{
-	look === 'sized' ? (
-		<>
-			<p class="!mb-8 max-w-2xl text-[16px] leading-relaxed text-muted-foreground">Bigger means more posts. Pick a topic to read everything filed under it.</p>
-			<div class="flex flex-wrap items-baseline gap-x-6 gap-y-3 leading-none">
-				{sorted.map((t) => (
-					<a
-						href={href(t)}
-						class:list={[
-							'font-display font-semibold uppercase tracking-[-0.3px] no-underline transition-colors hover:!text-primary',
-							t.posts.length === max ? '!text-brand-gold' : '!text-foreground',
-						]}
-						style={`font-size:${size(t.posts.length)}px`}
-					>
-						{prefix}
-						{t.label}
-						<sup class="ml-0.5 align-super font-sans text-[11px] font-normal tracking-normal text-muted-foreground">{t.posts.length}</sup>
-					</a>
-				))}
-			</div>
-		</>
-	) : (
-		<div data-tag-index>
+<div data-tag-index>
 			<!-- Sort tabs: A–Z is the order on the page (works without JavaScript); the others re-sort in place -->
 			<div role="group" aria-label="Sort tags" class="mb-8 flex flex-wrap items-center gap-1.5">
 				<span class="label mr-2 !text-[11px] text-muted-foreground">Sort</span>
@@ -65,9 +38,7 @@ const posts = (n: number) => `${n} ${n === 1 ? 'post' : 'posts'}`;
 				</a>
 			))}
 			</div>
-		</div>
-	)
-}
+</div>
 
 <script>
 	// Sort tabs: re-order the tags A–Z, Z–A, most posts first, or fewest posts first

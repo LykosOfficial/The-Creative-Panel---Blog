@@ -1,24 +1,32 @@
 ---
 import { SITE_TITLE, SITE_DESCRIPTION } from '../consts';
 import HeaderLink from './HeaderLink.astro';
-import PanelMenu, { type PanelLink } from './PanelMenu';
+import PanelMenu from './PanelMenu';
+import SectionsMenu, { type Section } from './SectionsMenu';
+import { flatLinks, getSiteConfig, isDropdown, menuSections } from '../lib/siteConfig';
 
-// Nav: Latest · The Panel ▾ · Books · Sites · About
-// "The Panel" groups the ways to browse the blog. Full links show from 1180px; below that, the ☰ menu.
-const PANEL_LABEL = 'The Panel';
-const panel: PanelLink[] = [
-	{ href: '/blog', label: 'Archive', description: 'Every post, newest first' },
-	{ href: '/trending', label: 'Trending', description: 'Most read and most liked' },
-	{ href: '/categories', label: 'Categories', description: 'Browse by section' },
-	{ href: '/tags', label: 'Tags', description: 'Browse by topic' },
-];
-const before = [{ href: '/', label: 'Latest' }];
-const after = [
-	{ href: '/books', label: 'Books' },
-	{ href: '/sites', label: 'Sites' },
-	{ href: '/about', label: 'About' },
-];
+// Navbar links come from the admin (Navigation page); the default is
+// Latest · The Panel ▾ · Books · Sites · About. Full links show from 1180px; below that, the ☰ menu.
+const config = await getSiteConfig();
+const links = config.navigation.links;
 const pathname = Astro.url.pathname.replace(/\/$/, '') || '/';
+
+interface Props {
+	/** Design lab only: show the ☰ sections menu with these sections, whatever the admin setting */
+	sections?: Section[];
+	sectionsVariant?: 'drawer' | 'mega' | 'auto';
+	sectionsSaved?: boolean;
+	/** Where "See saved posts" goes (the lab uses its own page) */
+	savedHref?: string;
+}
+// The ☰ sections menu: switched on in the admin (or forced by the design lab)
+const live = config.sectionsMenu.enabled ? menuSections(config) : undefined;
+const sections = Astro.props.sections ?? live;
+const sectionsVariant = Astro.props.sectionsVariant ?? 'auto';
+const sectionsSaved = Astro.props.sectionsSaved ?? config.sectionsMenu.showSaved;
+// "auto" covers every screen size, so its ☰ replaces the phone menu
+const sectionsEverywhere = Boolean(sections) && sectionsVariant === 'auto';
+const browse = flatLinks(config);
 ---
 
 <!-- Solid black at the top; turns to frosted glass once you scroll (.scrolled, set below) -->
@@ -36,9 +44,9 @@ const pathname = Astro.url.pathname.replace(/\/$/, '') || '/';
 		<div class="flex items-center gap-1">
 			<!-- Desktop links -->
 			<div class="nav-links mr-2 hidden items-center min-[1180px]:flex xl:mr-3 xl:gap-1">
-				{before.map((l) => <HeaderLink href={l.href}>{l.label}</HeaderLink>)}
-				<PanelMenu client:idle label={PANEL_LABEL} links={panel} pathname={pathname} />
-				{after.map((l) => <HeaderLink href={l.href}>{l.label}</HeaderLink>)}
+				{links.map((l) =>
+					isDropdown(l) ? <PanelMenu client:idle label={l.label} links={l.items} pathname={pathname} /> : <HeaderLink href={l.href}>{l.label}</HeaderLink>,
+				)}
 			</div>
 
 			<button type="button" class="icon-btn inline-flex" data-open-search aria-label="Search">
@@ -56,7 +64,15 @@ const pathname = Astro.url.pathname.replace(/\/$/, '') || '/';
 					><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg
 				>
 			</button>
-			<button type="button" class="icon-btn inline-flex min-[1180px]:hidden" data-menu-toggle aria-label="Open menu" aria-expanded="false" aria-controls="mobile-menu">
+			<!-- ☰ sections menu: on when switched on in the admin (mega menu on desktop, full-screen menu on phones) -->
+			{
+				sections && (
+					<div class:list={[sectionsEverywhere ? 'block' : 'hidden min-[1180px]:block']}>
+						<SectionsMenu client:idle sections={sections} browse={browse} variant={sectionsVariant} saved={sectionsSaved} savedHref={Astro.props.savedHref} />
+					</div>
+				)
+			}
+			<button type="button" class:list={['icon-btn min-[1180px]:hidden', sectionsEverywhere ? 'hidden' : 'inline-flex']} data-menu-toggle aria-label="Open menu" aria-expanded="false" aria-controls="mobile-menu">
 				<svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"
 					><path d="M4 7h16M4 12h16M4 17h16"></path></svg
 				>
@@ -67,10 +83,16 @@ const pathname = Astro.url.pathname.replace(/\/$/, '') || '/';
 	<!-- Phone / tablet / small-laptop menu (below 1180px) -->
 	<div id="mobile-menu" class="mobile-menu hidden border-t border-white/10 min-[1180px]:hidden">
 		<div class="mx-auto flex max-w-7xl flex-col px-4 py-2 sm:px-6">
-			{before.map((l) => <HeaderLink href={l.href}>{l.label}</HeaderLink>)}
-			<p class="mobile-group !mb-0 mt-3 pb-1 text-[11px] uppercase tracking-[2px] text-brand-logo-accent">{PANEL_LABEL}</p>
-			{panel.map((l) => <HeaderLink href={l.href} class="pl-3">{l.label}</HeaderLink>)}
-			{after.map((l) => <HeaderLink href={l.href}>{l.label}</HeaderLink>)}
+			{links.map((l) =>
+				isDropdown(l) ? (
+					<>
+						<p class="mobile-group !mb-0 mt-3 pb-1 text-[11px] uppercase tracking-[2px] text-brand-logo-accent">{l.label}</p>
+						{l.items.map((it) => <HeaderLink href={it.href} class="pl-3">{it.label}</HeaderLink>)}
+					</>
+				) : (
+					<HeaderLink href={l.href}>{l.label}</HeaderLink>
+				),
+			)}
 		</div>
 	</div>
 </header>

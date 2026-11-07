@@ -8,12 +8,13 @@ import Header from '../../components/Header.astro';
 import PostImage from '../../components/PostImage.astro';
 import TermHeader from '../../components/taxonomy/TermHeader.astro';
 import { SITE_TITLE } from '../../consts';
-import { CATEGORY_BLURBS } from '../../data/categories';
+import { categoryBlurb } from '../../lib/siteConfig';
 import { formatDate, sortByDate } from '../../lib/posts';
 import { abs, breadcrumbs } from '../../lib/seo';
 import { MIN_POSTS_TO_INDEX, categoryIndex } from '../../lib/taxonomy';
 
 const categories = categoryIndex(await getCollection('blog'));
+const blurbs = Object.fromEntries(await Promise.all(categories.map(async (c) => [c.slug, await categoryBlurb(c.slug)] as const)));
 const indexable = categories.some((c) => c.posts.length >= MIN_POSTS_TO_INDEX);
 const schema = [
 	{ '@type': 'CollectionPage', name: 'Categories', url: abs('/categories/'), isPartOf: { '@id': abs('/#website') } },
@@ -62,7 +63,7 @@ const schema = [
 												{c.label}
 												<span class="text-brand-logo-accent">.</span>
 											</h2>
-											{CATEGORY_BLURBS[c.slug] && <p class="!m-0 max-w-md text-[16px] text-muted-foreground">{CATEGORY_BLURBS[c.slug]}</p>}
+											{blurbs[c.slug] && <p class="!m-0 max-w-md text-[16px] text-muted-foreground">{blurbs[c.slug]}</p>}
 										</a>
 										{latest && (
 											<a href={`/blog/${latest.id}/`} class="group flex items-center gap-4 !text-foreground no-underline md:justify-self-end">

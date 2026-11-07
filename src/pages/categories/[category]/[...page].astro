@@ -2,7 +2,7 @@
 // /categories/<slug>/ and /categories/<slug>/page/2/ …: every post in a category, 12 a page.
 import { getCollection } from 'astro:content';
 import TermPage from '../../../components/taxonomy/TermPage.astro';
-import { CATEGORY_BLURBS } from '../../../data/categories';
+import { categoryBlurb } from '../../../lib/siteConfig';
 import { paginate } from '../../../lib/pagination';
 import { sortByDate } from '../../../lib/posts';
 import { categoryIndex } from '../../../lib/taxonomy';
@@ -22,6 +22,8 @@ export async function getStaticPaths() {
 }
 
 const { term, page, siblings } = Astro.props;
+// One-line description: the section's in the admin (Navigation), else src/data/categories.ts
+const description = await categoryBlurb(term.slug);
 ---
 
-<TermPage kind="category" term={term} page={page} siblings={siblings} description={CATEGORY_BLURBS[term.slug]} />
+<TermPage kind="category" term={term} page={page} siblings={siblings} description={description} />
